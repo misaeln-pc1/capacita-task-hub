@@ -40,16 +40,91 @@
 
 ---
 
-## 2026-07-04 — Regla de ubicación de tareas
+## 2026-07-04 — Regla inicial de ubicación de tareas — superada
 
-**Decisión:** la tarea vive donde se ejecuta.
+**Decisión inicial:** la tarea vive donde se ejecuta.
 
 ```text
 Tarea con repo dueño -> issue en repo dueño + visible en Planificador Atlas.
 Tarea sin repo dueño -> issue en capacita-task-hub + visible en Planificador Atlas.
 ```
 
-**Motivo:** evitar duplicación entre repos, chats y panel central.
+**Estado:** superada por la decisión posterior de centralizar issues de gestión en `capacita-task-hub`.
+
+**Motivo del cambio:** límite de workflows Auto-add de GitHub Projects. Cubrir muchos repos con un workflow por repo no escala en el plan actual.
+
+---
+
+## 2026-07-04 — Centralizar todos los issues de gestión en Task Hub
+
+**Decisión vigente:** todo issue de gestión se crea en `misaeln-pc1/capacita-task-hub`.
+
+**Regla:**
+
+```text
+Task Hub = registro maestro de issues.
+Planificador Atlas = vista central.
+Repo operativo = lugar de ejecución técnica si aplica.
+```
+
+**Motivo:** permite usar un solo workflow Auto-add desde `capacita-task-hub` hacia **Planificador Atlas**:
+
+```text
+Repository: misaeln-pc1/capacita-task-hub
+Filter: is:issue is:open
+```
+
+**Efecto:** las tareas de Moodle, Edge, Zoho, Licitaciones, Diseño Cursos y otros proyectos también nacen como issues en Task Hub, pero indicando `Proyecto operativo` y `Repo dueño`.
+
+**Riesgo:** amarillo operativo bajo. Se pierde parte de trazabilidad local en cada repo, mitigada con campos obligatorios y PR/commit de evidencia.
+
+---
+
+## 2026-07-04 — Todo issue abierto entra al Planificador Atlas
+
+**Decisión:** el workflow Auto-add no debe filtrar solo tareas ejecutivas.
+
+**Regla:**
+
+```text
+Todos los issues abiertos de Task Hub entran al Planificador Atlas.
+El campo Tipo decide si se ejecutan, evalúan, investigan o quedan como decisión pendiente.
+```
+
+**Motivo:** ideas, decisiones, investigaciones, bloqueos e iniciativas también deben estar visibles para no perderlas.
+
+**Vista clave:** el dashboard diario de trabajo filtra solo `Tipo = Tarea ejecutiva`.
+
+---
+
+## 2026-07-04 — Issue no significa tarea ejecutiva
+
+**Decisión:** un issue es una unidad de gestión, no necesariamente una tarea ejecutable.
+
+**Tipos oficiales iniciales:**
+
+- Tarea ejecutiva.
+- Idea a evaluar.
+- Decisión pendiente.
+- Investigación.
+- Bloqueo/Incidente.
+- Épica/Iniciativa.
+- Personal.
+- Seguimiento.
+- Administrativa.
+
+**Motivo:** evitar que una idea inmadura se transforme accidentalmente en trabajo técnico.
+
+**Regla operativa:**
+
+```text
+Una tarea ejecuta.
+Una idea se evalúa.
+Una decisión se valida.
+Una investigación busca información.
+Una épica se divide.
+Un bloqueo se destraba.
+```
 
 ---
 
@@ -70,8 +145,8 @@ Tarea sin repo dueño -> issue en capacita-task-hub + visible en Planificador At
 **Ejemplo:**
 
 ```text
-[Personal] Comprar polera
-[Personal] Ir al banco
+[Personal][Tarea] Comprar polera
+[Personal][Tarea] Ir al banco
 ```
 
 **Motivo:** no tiene sentido aplicar flujo de PR a tareas personales.
@@ -90,10 +165,25 @@ Tarea sin repo dueño -> issue en capacita-task-hub + visible en Planificador At
 
 ---
 
+## 2026-07-04 — Registrar tiempo histórico desde Capa 1
+
+**Decisión:** crear campos mínimos de tiempo desde el día 1, aunque la Capa 2 formal venga después.
+
+**Campos:**
+
+- Tiempo estimado inicial.
+- Tiempo real observado.
+- Confianza estimación.
+- Causa desviación.
+
+**Motivo:** generar historial para predicción futura sin sobrecargar la operación inicial.
+
+---
+
 ## 2026-07-04 — No automatizar desde el inicio
 
 **Decisión:** primero cargar tareas reales y configurar campos/vistas. La automatización queda como capa posterior.
 
 **Motivo:** automatizar sin backlog real genera sobreingeniería.
 
-**Siguiente paso:** cargar 10–20 tareas reales, observar uso y recién después proponer automatizaciones.
+**Siguiente paso:** cargar issues reales, observar uso y recién después proponer automatizaciones.
