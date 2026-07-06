@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Documentar la configuración del workflow Auto-add único para que **Planificador Atlas** capture todos los issues abiertos desde `capacita-task-hub`.
+Documentar la configuración del workflow Auto-add único para que **Planificador Atlas** capture las tareas ejecutables y seguimientos accionables creados en `capacita-task-hub`.
 
 ## Decisión
 
@@ -13,6 +13,29 @@ Repository: misaeln-pc1/capacita-task-hub
 Filter: is:issue is:open
 ```
 
+## Qué captura este workflow
+
+Captura issues abiertos de `capacita-task-hub`, principalmente:
+
+- tareas ejecutivas;
+- tareas personales;
+- tareas administrativas accionables;
+- seguimientos accionables.
+
+## Qué no captura por diseño
+
+No captura automáticamente los issues de repos operativos.
+
+Por defecto, estos viven en el repo operativo correspondiente:
+
+- ideas a evaluar;
+- investigaciones;
+- decisiones pendientes;
+- riesgos estructurales;
+- bloqueos de proyecto;
+- épicas/iniciativas;
+- incidentes graves.
+
 ## Por qué no usar un workflow por repo
 
 GitHub Projects limita la cantidad de workflows Auto-add según el plan. Como Capacita tiene más repos activos que slots disponibles, no conviene gastar un workflow por Moodle, Edge, Zoho, Licitaciones, Diseño Cursos, etc.
@@ -20,40 +43,53 @@ GitHub Projects limita la cantidad de workflows Auto-add según el plan. Como Ca
 ## Arquitectura resultante
 
 ```text
-Issue maestro: capacita-task-hub
+Repo operativo = radar del proyecto
+        |
+        | genera tareas concretas
+        v
+capacita-task-hub = cola de ejecución
         |
         | Auto-add único
         v
-Planificador Atlas
-        |
-        v
-Repo dueño declarado dentro del issue
+Planificador Atlas = dashboard de ejecución
 ```
 
-## Qué entra al Planificador Atlas
+## Relación padre/hija
 
-Todos los issues abiertos de `capacita-task-hub`, incluyendo:
+Cuando un issue del repo operativo genera tareas:
 
-- tareas ejecutivas;
-- ideas a evaluar;
-- decisiones pendientes;
-- investigaciones;
-- bloqueos/incidentes;
-- épicas/iniciativas;
-- tareas personales;
-- seguimientos administrativos.
+```text
+Repo operativo #XX = issue padre
+Task Hub #YY = tarea ejecutiva derivada
+```
+
+La tarea de Task Hub debe incluir:
+
+```text
+Issue padre:
+Repo dueño:
+Evidencia esperada:
+```
+
+El issue padre debe mantener una sección:
+
+```markdown
+## Tareas derivadas en Task Hub
+
+- [ ] capacita-task-hub#YY — Descripción breve
+```
 
 ## Qué no resuelve el workflow
 
 El workflow Auto-add solo agrega el issue al Project. No garantiza completar automáticamente todos los campos personalizados.
 
-Por eso cada issue debe incluir en título, cuerpo y labels la información mínima:
+Por eso cada tarea debe incluir en título, cuerpo y labels la información mínima:
 
 ```text
-[Proyecto][Tipo] Título claro
-Proyecto operativo:
+[Proyecto][Tarea] Título claro
+Tipo: Tarea ejecutiva
 Repo dueño:
-Tipo:
+Issue padre, si existe:
 Prioridad:
 Riesgo:
 Siguiente acción:
@@ -61,24 +97,20 @@ Siguiente acción:
 
 ## Dashboard de tareas
 
-Como entran todos los tipos de issue, el dashboard diario debe filtrar:
+El dashboard diario debe filtrar:
 
 ```text
 Tipo = Tarea ejecutiva
 ```
 
-Las ideas, decisiones, investigaciones y bloqueos deben vivir en vistas separadas.
+No debe usarse como radar completo de problemas del ecosistema. Para eso se revisan los issues de cada repo operativo y, si afecta varios proyectos, Global.
 
-## Labels recomendadas
+## Labels recomendadas en Task Hub
 
 ```text
 tipo:tarea-ejecutiva
-tipo:idea
-tipo:decision
-tipo:investigacion
-tipo:bloqueo
-tipo:epica
 tipo:personal
+tipo:administrativa
 tipo:seguimiento
 
 proyecto:moodle
@@ -98,44 +130,25 @@ prioridad:p2
 prioridad:p3
 ```
 
-## Excepción: issue operativo espejo
-
-No crear issues en repos operativos por defecto.
-
-Crear issue operativo espejo solo si:
-
-- Copilot/Codex/PR Factory lo necesita;
-- el repo requiere trazabilidad local;
-- el riesgo técnico lo exige;
-- Misael lo pide explícitamente.
-
-Vinculación requerida:
-
-```text
-Task Hub #XX -> issue maestro
-Repo operativo #YY -> issue espejo
-PR #ZZ -> evidencia
-```
-
 ## Validación mínima
 
 Para validar el workflow:
 
-1. Crear un issue nuevo en `capacita-task-hub`.
-2. Confirmar que aparece en **Planificador Atlas**.
-3. Confirmar que no se filtra por tipo.
-4. Completar o ajustar campos del Project manualmente si el Auto-add no los llena.
-5. Probar al menos:
-   - un issue `Tipo = Tarea ejecutiva`;
-   - un issue `Tipo = Idea a evaluar`.
+1. Crear un issue padre de análisis en un repo operativo.
+2. Crear dos tareas ejecutivas derivadas en `capacita-task-hub`.
+3. Confirmar que las tareas aparecen en **Planificador Atlas**.
+4. Confirmar que el issue padre no desaparece del radar del repo operativo.
+5. Confirmar vínculo bidireccional:
+   - issue padre lista tareas Task Hub;
+   - tareas Task Hub apuntan al issue padre.
 
 ## Riesgo
 
 Verde/amarillo operativo.
 
-- Verde: el workflow solo agrega issues al Project.
-- Amarillo: si se confunde issue con tarea ejecutiva y se ejecuta una idea inmadura.
+- Verde: el workflow solo agrega tareas al Project.
+- Amarillo: si se olvida vincular tareas con el issue padre, se pierde trazabilidad.
 
 ## Mitigación
 
-Usar siempre `Tipo` y vistas separadas.
+Usar siempre `Issue padre` en Task Hub cuando la tarea derive de un problema, investigación, decisión, riesgo o épica de repo operativo.
