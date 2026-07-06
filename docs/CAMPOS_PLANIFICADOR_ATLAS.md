@@ -4,30 +4,33 @@
 
 Definir los campos recomendados para el GitHub Project **Planificador Atlas**.
 
-El Project recibe automáticamente todos los issues abiertos de `capacita-task-hub` mediante un único workflow Auto-add. Los campos y vistas separan tareas ejecutivas, ideas, decisiones, investigaciones, bloqueos e iniciativas.
+El Project recibe automáticamente los issues abiertos de `capacita-task-hub` mediante un único workflow Auto-add. En este modelo, `capacita-task-hub` contiene principalmente tareas ejecutables, tareas personales, administrativas y seguimientos accionables.
+
+Las ideas, investigaciones, decisiones, riesgos, bloqueos y épicas viven por defecto en el repo operativo correspondiente y pueden generar tareas ejecutables en Task Hub.
 
 ## Regla principal
 
 ```text
-Todos los issues abiertos entran al Planificador Atlas.
-No todos los issues son tareas ejecutivas.
-El campo Tipo define cómo se tratan.
+Planificador Atlas = dashboard de ejecución.
+Task Hub = tareas ejecutables y seguimientos accionables.
+Repo operativo = radar de ideas, problemas, riesgos y decisiones.
 ```
 
 ## Campos iniciales obligatorios — Capa 1
 
 | Campo | Tipo sugerido | Valores sugeridos | Uso |
 |---|---|---|---|
-| Estado | Single select | Inbox, Hoy, Próxima, En curso, Bloqueada, Cerrada | Flujo básico de trabajo. |
+| Estado | Single select | Inbox, Hoy, Próxima, En curso, Bloqueada, Cerrada | Flujo básico de ejecución. |
 | Proyecto | Single select | Task Hub, Personal, Global, Moodle, Edge, Zoho, Licitaciones, Diseño Cursos, Mercado Público, Otro | Frente operativo o área. |
-| Tipo | Single select | Tarea ejecutiva, Idea a evaluar, Decisión pendiente, Investigación, Bloqueo/Incidente, Épica/Iniciativa, Personal, Seguimiento, Administrativa | Distingue ejecución de ideas o decisiones. |
+| Tipo | Single select | Tarea ejecutiva, Personal, Administrativa, Seguimiento accionable | Naturaleza de lo que sí entra al dashboard de ejecución. |
 | Prioridad | Single select | P1, P2, P3 | Orden de atención. |
 | Riesgo | Single select | Verde, Amarillo, Rojo | Semáforo operativo. |
-| Responsable | Single select o text | Misael, Atlas, Codex, Copilot, Jules, Proveedor, Cliente, Otro | Quién debe mover el issue. |
-| Fecha objetivo | Date | Fecha | Cuándo revisarlo o completarlo. |
+| Responsable | Single select o text | Misael, Atlas, Codex, Copilot, Jules, Proveedor, Cliente, Otro | Quién debe mover la tarea. |
+| Fecha objetivo | Date | Fecha | Cuándo revisarla o completarla. |
 | Siguiente acción | Text | Acción concreta | Qué se hace ahora. |
-| Origen / Validación | Single select | Dictado simple, Derivado de decisión validada, Derivado de PR, Pendiente de decisión, Idea a evaluar, Incidente/Bloqueo | Evita ejecutar ideas no validadas. |
-| Repo dueño | Text | `owner/repo` | Repo donde ocurrirá ejecución/PR/commit si aplica. |
+| Origen / Validación | Single select | Dictado simple, Derivado de issue padre, Derivado de decisión validada, Derivado de PR, Incidente/Bloqueo | Trazabilidad de por qué existe. |
+| Repo dueño | Text | `owner/repo` | Repo donde ocurre la ejecución/PR/commit si aplica. |
+| Issue padre | Text o link | URL o `repo#número` | Issue del repo operativo que originó la tarea. |
 
 ## Campos de tiempo histórico desde el día 1
 
@@ -62,10 +65,9 @@ Aunque la Capa 2 formal venga después, estos campos se crean desde el inicio pa
 
 | Campo | Uso |
 |---|---|
-| PR / Decisión origen | Link al PR, documento o decisión que generó el issue. |
-| Issue operativo espejo | Link a issue en repo técnico si existe. |
+| PR / Decisión origen | Link al PR, documento o decisión que generó la tarea. |
 | PR/commit resultado | Evidencia de ejecución. |
-| Bloqueo | Texto breve del bloqueo. |
+| Bloqueo | Texto breve del bloqueo operativo. |
 | Dependencia | Persona, proveedor, repo o decisión de la que depende. |
 | Fecha revisión | Fecha para revisar si sigue vigente. |
 
@@ -76,28 +78,35 @@ Aunque la Capa 2 formal venga después, estos campos se crean desde el inicio pa
 | Dashboard tareas | `Tipo = Tarea ejecutiva` y `Estado` en Hoy/En curso/Próxima. |
 | Hoy | `Tipo = Tarea ejecutiva` + `Estado = Hoy`. |
 | Semana | `Tipo = Tarea ejecutiva` + `Estado` en Hoy/Próxima + fecha cercana. |
-| Bloqueadas | `Estado = Bloqueada` o `Tipo = Bloqueo/Incidente`. |
-| Ideas | `Tipo = Idea a evaluar`. |
-| Decisiones | `Tipo = Decisión pendiente`. |
-| Investigación | `Tipo = Investigación`. |
-| Iniciativas | `Tipo = Épica/Iniciativa`. |
+| Bloqueadas | `Estado = Bloqueada`. |
 | Por proyecto | Agrupar por `Proyecto`. |
 | Personales | `Tipo = Personal` o `Proyecto = Personal`. |
+| Seguimientos | `Tipo = Seguimiento accionable`. |
 | Riesgo | `Riesgo = Amarillo` o `Rojo`. |
-| Pendiente de decisión | `Origen / Validación = Pendiente de decisión` o `Tipo = Decisión pendiente`. |
+| Con issue padre | `Issue padre` no vacío. |
+
+## Qué no debe vivir en el Planificador por defecto
+
+Estos elementos viven en el repo operativo, no en Task Hub:
+
+```text
+Idea a evaluar
+Investigación
+Decisión pendiente
+Riesgo estructural
+Bloqueo del proyecto
+Épica / iniciativa
+Incidente grave
+```
+
+Cuando cualquiera de esos elementos genere acciones concretas, esas acciones sí se crean en Task Hub como tareas ejecutivas y se vinculan al issue padre.
 
 ## Labels recomendadas en `capacita-task-hub`
 
-Los labels ayudan a filtrar aunque los campos del Project no estén completos.
-
 ```text
 tipo:tarea-ejecutiva
-tipo:idea
-tipo:decision
-tipo:investigacion
-tipo:bloqueo
-tipo:epica
 tipo:personal
+tipo:administrativa
 tipo:seguimiento
 
 proyecto:moodle
@@ -117,11 +126,33 @@ prioridad:p2
 prioridad:p3
 ```
 
+## Labels recomendadas en repos operativos
+
+```text
+tipo:idea
+tipo:investigacion
+tipo:decision
+tipo:riesgo
+tipo:bloqueo
+tipo:epica
+tipo:incidente
+
+estado:analisis
+estado:en-descomposicion
+estado:con-tareas-activas
+estado:bloqueado
+estado:resuelto
+
+riesgo:verde
+riesgo:amarillo
+riesgo:rojo
+```
+
 ## Regla anti-sobrecarga
 
-No llenar todos los campos para cada issue desde el día 1.
+No llenar todos los campos para cada tarea desde el día 1.
 
-Mínimo para issues simples:
+Mínimo para tareas simples:
 
 ```text
 Título
@@ -140,6 +171,7 @@ Tipo = Tarea ejecutiva
 Estado
 Proyecto
 Repo dueño si aplica
+Issue padre si existe
 Prioridad
 Riesgo
 Responsable
@@ -149,30 +181,13 @@ Confianza estimación
 Evidencia esperada
 ```
 
-Mínimo para ideas/decisiones:
+Mínimo para issue padre en repo operativo:
 
 ```text
 Título
-Tipo = Idea a evaluar / Decisión pendiente
-Proyecto
-Repo dueño si aplica
-Riesgo
-Origen / Validación
+Tipo = Idea / Investigación / Decisión / Riesgo / Bloqueo / Épica
 Problema o pregunta abierta
-Siguiente acción de análisis
-```
-
-Mínimo para riesgo amarillo/rojo:
-
-```text
-Título
-Tipo
-Proyecto
-Repo dueño si aplica
 Riesgo
-Origen / Validación
-Dependencia
-Siguiente acción
-Aprobación humana requerida
-Referencia a PR/decisión si existe
+Siguiente acción de análisis
+Tareas derivadas en Task Hub, si existen
 ```
