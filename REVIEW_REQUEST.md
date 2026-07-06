@@ -2,50 +2,55 @@
 
 ## Alcance
 
-Revisión del bootstrap documental inicial de `capacita-task-hub` y del modelo **Planificador Atlas**.
+Revisión del PR #9 del repo `capacita-task-hub`, que ajusta el modelo **Planificador Atlas / Sistema de Tareas Atlas**.
 
 ## Objetivo
 
-Validar que la documentación registre correctamente lo definido en conversación:
+Validar que la documentación registre correctamente la decisión vigente:
 
-- `capacita-task-hub` como repo de tareas personales, administrativas, transversales e inbox.
-- **Planificador Atlas** como GitHub Project / panel central.
-- Reglas para tareas de repos operativos.
-- Capa 1: visibilidad.
-- Capa 2: tiempo.
-- Capa 3: automatización.
-- Separación entre tarea, decisión, rama y PR.
-- Tareas personales sin rama/PR.
-- Tareas derivadas de decisiones ya validadas como acciones ejecutivas.
+```text
+El problema vive en el repo.
+La tarea ejecutable vive en Task Hub.
+La evidencia técnica vive en el repo.
+```
+
+## Decisión a revisar
+
+- `capacita-task-hub` no reemplaza los issues de repos operativos.
+- `capacita-task-hub` concentra tareas ejecutables, personales, administrativas y seguimientos accionables.
+- Ideas, investigaciones, decisiones, riesgos, bloqueos, épicas e incidentes viven en el repo operativo.
+- Los issues de repo operativo pueden generar tareas derivadas en Task Hub.
+- Cada tarea derivada debe linkear el `Issue padre`.
+- El issue padre debe listar sus tareas derivadas y mantenerse abierto mientras el problema siga vivo.
+- El **Planificador Atlas** usa un único Auto-add desde Task Hub con filtro `is:issue is:open`.
 
 ## Archivos a revisar
 
 | Archivo | Revisión esperada |
 |---|---|
-| `README.md` | Claridad de nombres y regla principal. |
-| `PROJECT_CONTEXT.md` | Contexto estable y límites del repo. |
-| `PROTOCOLO_TAREAS_ATLAS.md` | Regla de ubicación, decisiones, tareas simples y semáforo. |
-| `docs/CAPAS_PLANIFICADOR_ATLAS.md` | Capa 1, 2 y 3. |
-| `docs/CAMPOS_PLANIFICADOR_ATLAS.md` | Campos y vistas del Project. |
-| `docs/FLUJO_TAREAS_REPOS_OPERATIVOS.md` | Tareas nacidas desde Moodle, Edge, Zoho, etc. |
-| `docs/CRITERIOS_TIEMPO_AUTOMATIZACION.md` | Estimación y automatización. |
-| `DECISIONES.md` | Decisiones registradas. |
-| `RIESGOS.md` | Riesgos y mitigaciones. |
-| `PROMPTS_BASE.md` | Prompts operativos. |
+| `PROTOCOLO_TAREAS_ATLAS.md` | Regla padre/hija, ubicación por tipo y flujo de maduración. |
+| `docs/CAMPOS_PLANIFICADOR_ATLAS.md` | Campos orientados a tareas ejecutables e `Issue padre`. |
+| `docs/CONFIGURACION_INICIAL_PLANIFICADOR_ATLAS.md` | Configuración manual del Project bajo el nuevo modelo. |
+| `docs/FLUJO_TAREAS_REPOS_OPERATIVOS.md` | Flujo repo operativo -> tareas Task Hub. |
+| `docs/WORKFLOW_AUTO_ADD_TASK_HUB.md` | Alcance real del Auto-add único. |
+| `DECISIONES.md` | Decisiones superadas y decisión vigente. |
+| `TASK_STATUS.md` | Próximos pasos y bloqueos. |
+| `CHANGELOG_AGENT.md` | Evidencia de cambios y lectura obligatoria. |
 
 ## Preguntas de revisión
 
-1. ¿Queda claro que `capacita-task-hub` es repo y **Planificador Atlas** es GitHub Project?
-2. ¿Queda claro que las tareas técnicas viven en su repo dueño?
-3. ¿Queda claro que las tareas personales no requieren rama/PR?
-4. ¿Queda claro que una tarea no valida una decisión?
-5. ¿Queda claro cuándo usar Capa 1, Capa 2 y Capa 3?
-6. ¿Hay sobreingeniería o documentos sobrantes?
+1. ¿Queda claro que el radar de problemas sigue viviendo en cada repo operativo?
+2. ¿Queda claro que Task Hub es cola de tareas ejecutables y no reemplaza los issues de proyecto?
+3. ¿Queda claro cómo se vincula un issue padre con tareas hijas de Task Hub?
+4. ¿Queda claro que el Planificador Atlas no es el radar completo de problemas, sino dashboard de ejecución?
+5. ¿Queda claro cuándo crear issue en repo operativo versus tarea en Task Hub?
+6. ¿Hay riesgo de duplicación o pérdida de trazabilidad?
 7. ¿Falta algún campo clave para el Planificador Atlas?
 
 ## Definition of Done
 
-- Documentación coherente y sin nombres ambiguos.
-- Riesgo verde: sin producción, sin credenciales, sin datos personales, sin scripts.
-- PR documental abierto para revisión.
-- Pendientes claros para configurar campos/vistas y cargar primeras tareas.
+- Documentación coherente y sin contradicción con la decisión vigente.
+- Riesgo verde/amarillo operativo controlado.
+- Sin producción, sin credenciales, sin datos personales, sin scripts.
+- PR documental actualizado para revisión.
+- Pendientes claros para probar issue padre -> tareas hijas.

@@ -2,9 +2,7 @@
 
 ## Propósito
 
-Checklist mínimo para configurar manualmente el GitHub Project **Planificador Atlas**.
-
-Este documento existe porque el conector disponible no permite crear/configurar GitHub Projects directamente desde Atlas en este chat.
+Checklist mínimo para configurar manualmente el GitHub Project **Planificador Atlas** con un único flujo Auto-add desde `capacita-task-hub`.
 
 ## Estado
 
@@ -12,10 +10,22 @@ Este documento existe porque el conector disponible no permite crear/configurar 
 - Nombre: **Planificador Atlas**.
 - Tipo inicial: Table.
 - Import items from repository: desmarcado.
+- Decisión vigente: `capacita-task-hub` contiene tareas ejecutables, personales, administrativas y seguimientos accionables.
+- Ideas, investigaciones, decisiones, riesgos, bloqueos y épicas viven por defecto en el repo operativo.
 
-## Configuración mínima recomendada
+## Workflow Auto-add recomendado
 
-### Campos Capa 1 — crear primero
+Crear un solo workflow nativo del Project:
+
+```text
+Nombre: Auto-add Task Hub
+Repository: misaeln-pc1/capacita-task-hub
+Filter: is:issue is:open
+```
+
+Este workflow no intenta capturar todos los issues de todos los repos. Captura la cola de ejecución centralizada.
+
+## Campos Capa 1 — crear primero
 
 1. `Estado`
    - Inbox
@@ -34,16 +44,14 @@ Este documento existe porque el conector disponible no permite crear/configurar 
    - Zoho
    - Licitaciones
    - Diseño Cursos
+   - Mercado Público
    - Otro
 
 3. `Tipo`
+   - Tarea ejecutiva
    - Personal
    - Administrativa
-   - Seguimiento
-   - Técnico
-   - Documental
-   - Decisión
-   - Riesgo/Bloqueo
+   - Seguimiento accionable
 
 4. `Prioridad`
    - P1
@@ -73,52 +81,97 @@ Este documento existe porque el conector disponible no permite crear/configurar 
 
 9. `Origen / Validación`
    - Dictado simple
+   - Derivado de issue padre
    - Derivado de decisión validada
    - Derivado de PR
-   - Pendiente de decisión
-   - Idea a evaluar
    - Incidente/Bloqueo
 
-### Campos Capa 2 — crear después de probar Capa 1
+10. `Repo dueño`
+   - Text
+   - Formato sugerido: `misaeln-pc1/nombre-repo`
 
-- `Tamaño estimado`: XS, S, M, L, XL, XXL.
-- `Tiempo activo Misael`: 10 min, 30 min, 1 h, 2 h, medio día, día completo.
-- `Tiempo IA/agente`: Inmediato, 30 min, 1 h, varias iteraciones.
-- `Confianza estimación`: Alta, Media, Baja.
-- `Causa incertidumbre`: Definición, acceso, datos, API, proveedor, SENCE, revisión humana, otra.
+11. `Issue padre`
+   - Text o link
+   - Formato sugerido: `misaeln-pc1/repo#123` o URL completa
 
-### Campos Capa 3 — crear cuando existan tareas reales
+## Campos de tiempo histórico — crear desde el día 1
 
-- `Automatizable`: No, Parcial, Sí.
-- `Ejecutor sugerido`: Misael, Atlas, Codex, Copilot, Jules, API, Proveedor.
-- `Tipo de ejecución`: Prompt, PR, Script, Checklist, Revisión, Extracción, Manual.
-- `Requiere validación humana`: Sí, No.
-- `Riesgo automatización`: Verde, Amarillo, Rojo.
+Estos campos no activan Capa 2 pesada. Solo guardan historial.
+
+- `Tiempo estimado inicial`
+  - 10 min
+  - 30 min
+  - 1 h
+  - 2 h
+  - medio día
+  - día completo
+  - más de un día
+
+- `Tiempo real observado`
+  - 10 min
+  - 30 min
+  - 1 h
+  - 2 h
+  - medio día
+  - día completo
+  - más de un día
+
+- `Confianza estimación`
+  - Alta
+  - Media
+  - Baja
+
+- `Causa desviación`
+  - Definición
+  - Acceso
+  - Datos
+  - API
+  - Proveedor
+  - SENCE
+  - Revisión humana
+  - Otra
 
 ## Vistas iniciales
 
 | Vista | Configuración sugerida |
 |---|---|
-| Hoy | Filtrar `Estado = Hoy`. |
-| Semana | Filtrar `Estado = Hoy` o `Próxima`; ordenar por prioridad y fecha objetivo. |
+| Dashboard tareas | Filtrar `Tipo = Tarea ejecutiva`; ordenar por Estado, Prioridad y Fecha objetivo. |
+| Hoy | Filtrar `Tipo = Tarea ejecutiva` y `Estado = Hoy`. |
+| Semana | Filtrar `Tipo = Tarea ejecutiva`; `Estado = Hoy` o `Próxima`; ordenar por prioridad y fecha objetivo. |
 | Bloqueadas | Filtrar `Estado = Bloqueada`. |
 | Por proyecto | Agrupar por `Proyecto`. |
-| Personales | Filtrar `Proyecto = Personal` o `Proyecto = Task Hub`. |
+| Personales | Filtrar `Tipo = Personal` o `Proyecto = Personal`. |
+| Seguimientos | Filtrar `Tipo = Seguimiento accionable`. |
 | Riesgo | Filtrar `Riesgo = Amarillo` o `Rojo`. |
-| Automatizables | Filtrar `Automatizable = Sí` o `Parcial`. Crear después de Capa 3. |
-| Pendiente de decisión | Filtrar `Origen / Validación = Pendiente de decisión`. |
+| Con issue padre | Filtrar `Issue padre` no vacío. |
+
+## Qué se revisa fuera del Planificador Atlas
+
+Para conocer problemas, riesgos, ideas y decisiones del proyecto, revisar los issues del repo operativo.
+
+Ejemplos:
+
+```text
+[Moodle][Investigación] Analizar cambio de autenticación
+[Edge][Decisión] Definir criterio canonical
+[Zoho][Riesgo] Workflow CRM puede afectar datos reales
+```
+
+Si esos issues generan tareas, las tareas aparecen en Task Hub y en el Planificador Atlas.
 
 ## Orden recomendado
 
 ```text
-1. Crear campos de Capa 1.
-2. Crear vistas Hoy, Semana, Bloqueadas, Por proyecto y Personales.
-3. Cargar 10–20 tareas reales.
-4. Ajustar nombres/valores si algo confunde.
-5. Crear campos de Capa 2 solo para tareas P1/P2.
-6. Crear campos de Capa 3 cuando aparezcan patrones automatizables.
+1. Confirmar Auto-add único desde capacita-task-hub con filtro is:issue is:open.
+2. Crear campos de Capa 1 para tareas ejecutables.
+3. Crear campo Issue padre.
+4. Crear campos de tiempo histórico mínimo.
+5. Crear vistas Dashboard tareas, Hoy, Semana, Bloqueadas, Por proyecto y Con issue padre.
+6. Probar con un issue padre en repo operativo y dos tareas hijas en Task Hub.
+7. No cargar backlog completo hasta validar el flujo.
+8. No activar Capa 3 ni automatización por scripts todavía.
 ```
 
 ## Regla anti-manualidad
 
-Si configurar campos/vistas manualmente toma más de lo razonable, evaluar ruta con GitHub CLI local. No activar workflows ni bots todavía.
+Si configurar campos/vistas manualmente toma más de lo razonable, evaluar ruta con GitHub CLI local. No activar workflows de Actions, bots ni scripts todavía.
