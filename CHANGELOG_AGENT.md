@@ -39,6 +39,7 @@ La evidencia técnica vive en el repo.
 - `docs/WORKFLOW_AUTO_ADD_TASK_HUB.md`.
 - `DECISIONES.md`.
 - `TASK_STATUS.md`.
+- `REVIEW_REQUEST.md`.
 - `CHANGELOG_AGENT.md`.
 
 ### Lectura obligatoria realizada
@@ -48,6 +49,18 @@ La evidencia técnica vive en el repo.
 - `capacita-global-control/docs/ESTANDAR_GLOBAL_PROYECTOS.md`.
 - `capacita-global-control/INDICE_PROYECTOS.md`.
 - `capacita-global-control/docs/CONTROL_OPERATING_MODEL.md`.
+
+### Feedback scan
+
+Feedback scan realizado: sin hallazgos relevantes.
+
+Archivos revisados o verificados:
+
+- `REVIEW_REQUEST.md`: actualizado para PR #9 corregido.
+- `CHANGELOG_AGENT.md`: actualizado.
+- `TASK_STATUS.md`: actualizado.
+- `AGENT_FEEDBACK.md`: no existe.
+- `GEMINI.md`: no existe.
 
 ### No se tocó
 
