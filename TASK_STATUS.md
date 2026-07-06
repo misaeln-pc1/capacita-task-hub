@@ -2,40 +2,28 @@
 
 ## Estado actual
 
-Sistema de Tareas Atlas con bootstrap documental mergeado y ajuste de arquitectura en curso.
+Sistema de Tareas Atlas con bootstrap documental mergeado y PR #9 en corrección conceptual.
 
 ## Decisión vigente
 
 El modelo operativo queda así:
 
 ```text
-Task Hub = registro maestro de issues.
-Planificador Atlas = tablero central.
-Repo operativo = lugar de ejecución técnica si aplica.
-```
-
-Todos los issues de gestión se crean en:
-
-```text
-misaeln-pc1/capacita-task-hub
-```
-
-El **Planificador Atlas** los captura mediante un único Auto-add:
-
-```text
-Repository: misaeln-pc1/capacita-task-hub
-Filter: is:issue is:open
+Repo operativo = radar de problemas, ideas, riesgos, decisiones e investigaciones.
+Task Hub = cola maestra de tareas ejecutables.
+Planificador Atlas = dashboard central de ejecución.
 ```
 
 ## Objetivo inmediato
 
-Actualizar la documentación para reflejar que:
+Corregir el PR #9 para reflejar que:
 
-- todos los issues abiertos de Task Hub entran al Planificador Atlas;
-- no todos los issues son tareas ejecutivas;
-- el campo `Tipo` separa tarea ejecutiva, idea, decisión, investigación, bloqueo e iniciativa;
-- el dashboard diario filtra solo `Tipo = Tarea ejecutiva`;
-- los proyectos operativos se declaran mediante `Proyecto operativo` y `Repo dueño`.
+- Task Hub no reemplaza los issues de los repos operativos.
+- Task Hub centraliza tareas ejecutables, personales, administrativas y seguimientos accionables.
+- Ideas, investigaciones, decisiones, riesgos, bloqueos, épicas e incidentes viven en el repo operativo.
+- Cuando un issue de repo genera acciones, se crean tareas derivadas en Task Hub.
+- Las tareas de Task Hub deben linkear el issue padre.
+- El issue padre debe listar y revisar el estado de sus tareas derivadas.
 
 ## Avances
 
@@ -43,31 +31,33 @@ Actualizar la documentación para reflejar que:
 - GitHub Project **Planificador Atlas** creado manualmente por Misael.
 - PR #1 mergeado.
 - Issues iniciales #2, #3 y #4 creados.
-- Auto-add único desde `capacita-task-hub` validado conceptualmente como ruta preferente.
+- PR #9 abierto para ajustar el estándar.
+- Decisión intermedia de centralizar todos los issues fue corregida antes del merge.
 
 ## Pendientes inmediatos
 
 | Pendiente | Responsable | Prioridad | Riesgo | Nota |
 |---|---|---:|---|---|
-| Revisar y mergear PR de ajuste de arquitectura centralizada | Misael | P1 | Verde | Actualiza protocolo, campos, flujo y decisiones. |
+| Revisar y mergear PR #9 corregido | Misael | P1 | Verde | Debe reflejar problema en repo / tarea en Task Hub. |
 | Confirmar workflow Auto-add único | Misael | P1 | Verde | `is:issue is:open` desde `capacita-task-hub`. |
-| Configurar campos de Capa 1 | Misael / Atlas guía | P1 | Verde | Incluye `Tipo`, `Repo dueño` y tiempo histórico mínimo. |
-| Configurar vistas iniciales | Misael / Atlas guía | P1 | Verde | Dashboard tareas, Ideas, Decisiones, Bloqueadas, Por proyecto. |
+| Configurar campo `Issue padre` en Planificador Atlas | Misael / Atlas guía | P1 | Verde | Necesario para vínculo repo -> Task Hub. |
+| Configurar campos de Capa 1 | Misael / Atlas guía | P1 | Verde | Enfocados en tareas ejecutables. |
+| Configurar vistas iniciales | Misael / Atlas guía | P1 | Verde | Dashboard tareas, Hoy, Semana, Bloqueadas, Por proyecto, Con issue padre. |
 | Registrar URL/número del Project | Misael | P1 | Verde | Para futura sincronización. |
-| Crear primera carga controlada de issues reales | Atlas + Misael | P1 | Verde/Amarillo | Partir con pocos issues de distintos tipos. |
+| Probar vínculo issue padre -> tareas hijas | Atlas + Misael | P1 | Verde/Amarillo | Usar un caso real pequeño. |
 | Definir si se actualizará Global con nuevo repo/sistema | Atlas + Misael | P2 | Verde | Probable actualización posterior en `capacita-global-control`. |
 
 ## Próximo paso recomendado
 
-1. Revisar y mergear el PR de ajuste centralizado.
+1. Revisar y mergear PR #9 corregido.
 2. Configurar Auto-add único desde Task Hub si no está confirmado.
-3. Configurar campos y vistas.
-4. Probar con un issue ejecutivo y un issue idea.
+3. Configurar campo `Issue padre`.
+4. Probar con un issue padre de repo operativo y dos tareas hijas en Task Hub.
 5. Ajustar antes de cargar backlog.
 
 ## Bloqueos
 
-Ninguno documental. La limitación de workflows Auto-add se resuelve centralizando issues en Task Hub.
+Ninguno documental.
 
 ## No tocar todavía
 
@@ -75,4 +65,4 @@ Ninguno documental. La limitación de workflows Auto-add se resuelve centralizan
 - No ejecutar scripts.
 - No conectar APIs.
 - No modificar repos operativos masivamente.
-- No crear issues espejo salvo necesidad técnica explícita.
+- No cargar backlog completo hasta validar el vínculo padre/hija.
