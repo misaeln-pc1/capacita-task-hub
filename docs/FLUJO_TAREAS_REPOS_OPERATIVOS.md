@@ -2,154 +2,202 @@
 
 ## Propósito
 
-Definir cómo se crean issues cuando nacen desde proyectos operativos como Moodle, Edge, Zoho, licitaciones, Diseño de Cursos u otros, y cómo se ven en el **Planificador Atlas** sin gastar workflows Auto-add por cada repo.
+Definir cómo se conectan los issues de repos/proyectos operativos con las tareas ejecutables de `capacita-task-hub` y el **Planificador Atlas**.
 
 ## Regla base vigente
 
-> El issue maestro de gestión vive siempre en `capacita-task-hub`. El repo operativo se declara en el campo `Repo dueño`.
+> El problema vive en el repo. La tarea ejecutable vive en Task Hub. La evidencia técnica vive en el repo.
 
-El repo operativo sigue siendo el lugar de ejecución técnica, PR, commit o documentación propia cuando aplique, pero no es el lugar por defecto para crear el issue de gestión.
+Esto evita que riesgos, ideas, decisiones o incidentes graves queden ocultos en un repo central que no se revisa cuando se analiza el proyecto afectado.
 
-## Motivo
+## Separación de responsabilidades
 
-GitHub Projects tiene límite de workflows Auto-add por plan. Para evitar tener un workflow por cada repo, el **Planificador Atlas** usa un solo Auto-add:
-
-```text
-Repository: misaeln-pc1/capacita-task-hub
-Filter: is:issue is:open
-```
+| Lugar | Qué contiene | Qué no debe absorber |
+|---|---|---|
+| Repo operativo | Ideas, investigaciones, decisiones, riesgos, bloqueos, épicas, incidentes, PRs y evidencia técnica | Cola diaria de tareas ejecutables. |
+| `capacita-task-hub` | Tareas ejecutables, personales, administrativas y seguimientos accionables | Problemas estructurales que deben verse en el repo. |
+| Planificador Atlas | Vista de ejecución de Task Hub | Radar completo de todos los problemas de todos los repos. |
 
 ## Flujo general
 
 ```text
-Issue nace en cualquier proyecto o chat
+Aparece idea / problema / riesgo en un proyecto
         |
         v
-Crear issue maestro en capacita-task-hub
+Crear issue padre en repo operativo
         |
         v
-Indicar Proyecto operativo y Repo dueño si aplica
+Analizar, debatir, clasificar riesgo y decidir
         |
         v
-Auto-add lo agrega al Planificador Atlas
+Descomponer en tareas ejecutables
         |
         v
-Si madura a ejecución técnica, trabajar en repo dueño con rama/PR/evidencia
+Crear tareas hijas en capacita-task-hub
+        |
+        v
+Auto-add las lleva al Planificador Atlas
+        |
+        v
+Ejecutar con evidencia en repo operativo si aplica
+        |
+        v
+Actualizar issue padre con estado de tareas derivadas
 ```
 
-## Tipos principales
+## Tabla de enrutamiento
 
-| Tipo | Ejemplo | Acción |
+| Caso | Dónde crear issue | Dónde se ve ejecución |
 |---|---|---|
-| Tarea ejecutiva | `[Moodle][Tarea] Subir cinco videos al módulo Access M3` | Se puede ejecutar si está clara. |
-| Idea a evaluar | `[Moodle][Idea] Evaluar autenticación diferenciada por módulo` | No se ejecuta; primero se analiza. |
-| Decisión pendiente | `[Edge][Decisión] Definir criterio canonical para landings nuevas` | Requiere decisión antes de tareas. |
-| Investigación | `[Zoho][Investigación] Revisar API names de Deals` | Busca información. |
-| Bloqueo/Incidente | `[Licitaciones][Bloqueo] Falta documento OTIC` | Resolver dependencia. |
-| Épica/Iniciativa | `[Moodle][Iniciativa] Course Factory Access` | Dividir en issues menores. |
+| Subir cinco videos ya decidido | `capacita-task-hub` | Planificador Atlas |
+| Comprar algo ya decidido | `capacita-task-hub` | Planificador Atlas |
+| Llamar/probar/validar algo concreto | `capacita-task-hub` | Planificador Atlas |
+| Analizar autenticación | Repo operativo | Repo operativo |
+| Debatir idea de arquitectura | Repo operativo | Repo operativo |
+| Riesgo SENCE/CUS | Repo operativo + Global si transversal | Repo operativo / Global |
+| Bloqueo grave de proyecto | Repo operativo | Repo operativo |
+| Épica Course Factory | Repo operativo | Repo operativo |
+| Tarea personal | `capacita-task-hub` | Planificador Atlas |
 
-## Ejemplo: Moodle — tarea ejecutiva
+## Ejemplo: Moodle — problema padre
 
-```text
-[Moodle][Tarea] Subir cinco videos al módulo Access M3
-```
-
-Issue vive en:
-
-```text
-misaeln-pc1/capacita-task-hub
-```
-
-Campos esperados:
+Situación:
 
 ```text
-Tipo: Tarea ejecutiva
-Proyecto operativo: Moodle
-Repo dueño: misaeln-pc1/capacita-learnops-moodle
-Riesgo: Amarillo
-Siguiente acción: preparar ejecución controlada
-Evidencia esperada: PR, commit, validación visual o checklist
+Hay que analizar cambio de clave/autenticación. Puede ser grave.
 ```
 
-Ejecución ocurre en:
+No es tarea ejecutable. Debe vivir en repo Moodle:
+
+```text
+[Moodle][Investigación] Analizar cambio de clave y autenticación
+```
+
+Repo:
 
 ```text
 misaeln-pc1/capacita-learnops-moodle
 ```
 
-si requiere rama, PR, commit o validación técnica.
+Contenido mínimo:
 
-## Ejemplo: Moodle — idea
+```markdown
+## Problema
 
-```text
-[Moodle][Idea] Evaluar autenticación diferenciada por módulo
+Analizar cambio de clave/autenticación y su impacto en Moodle, usuarios, seguridad y posibles restricciones SENCE/CUS.
+
+## Riesgo
+
+Amarillo/Rojo según impacto.
+
+## Siguiente acción
+
+Definir alcance, alternativas y tareas ejecutables derivadas.
+
+## Tareas derivadas en Task Hub
+
+- Pendiente.
 ```
 
-Issue vive en:
+## Ejemplo: tareas derivadas en Task Hub
+
+Desde el issue padre de autenticación pueden nacer:
+
+```text
+[Moodle][Tarea] Levantar flujo actual de recuperación de clave
+[Moodle][Tarea] Revisar impacto SENCE/CUS del cambio de autenticación
+[Moodle][Tarea] Preparar alternativas de autenticación
+[Moodle][Tarea] Validar permisos y roles afectados
+```
+
+Estas viven en:
 
 ```text
 misaeln-pc1/capacita-task-hub
 ```
 
-Campos esperados:
+Cada tarea debe indicar:
 
 ```text
-Tipo: Idea a evaluar
-Proyecto operativo: Moodle
 Repo dueño: misaeln-pc1/capacita-learnops-moodle
-Estado: Inbox / Pendiente de decisión
-Riesgo: Amarillo
-Siguiente acción: definir problema, alternativas e impacto
+Issue padre: misaeln-pc1/capacita-learnops-moodle#XX
+Evidencia esperada: comentario, documento, PR o validación según aplique
 ```
 
-No se ejecuta directo. Puede madurar a investigación, decisión o tareas ejecutivas.
+## Estado del issue padre
+
+El issue padre no se cierra solo porque existan tareas en Task Hub. Se mantiene abierto mientras el problema siga vivo.
+
+Estados sugeridos:
+
+```text
+estado:analisis
+estado:en-descomposicion
+estado:con-tareas-activas
+estado:bloqueado
+estado:resuelto
+```
+
+Ejemplo de actualización en el issue padre:
+
+```markdown
+## Estado tareas derivadas
+
+- [x] capacita-task-hub#80 — Levantar flujo actual.
+- [x] capacita-task-hub#81 — Revisar impacto SENCE/CUS.
+- [ ] capacita-task-hub#82 — Preparar alternativas.
+- [ ] capacita-task-hub#83 — Validar permisos y roles afectados.
+
+## Lectura Atlas
+
+El problema sigue abierto. La tarea #82 bloquea la decisión final.
+```
 
 ## Ejemplo: Edge
 
-```text
-[Edge][Tarea] Revisar canonical y sitemap de landings nuevas
-```
-
-Issue vive en `capacita-task-hub`.
-
-Repo dueño:
+Idea/riesgo en repo Edge:
 
 ```text
-misaeln-pc1/capacita-edge
+[Edge][Decisión] Definir criterio canonical para landings nuevas
 ```
 
-Si implica cambiar rutas, canonical, Worker, Cloudflare o SEO productivo, marcar riesgo amarillo y exigir evidencia.
+Tareas derivadas en Task Hub:
+
+```text
+[Edge][Tarea] Auditar canonical de landing Access
+[Edge][Tarea] Revisar sitemap de landings nuevas
+```
 
 ## Ejemplo: Zoho
+
+Investigación en repo Zoho:
 
 ```text
 [Zoho][Investigación] Confirmar API names y picklists de Deals
 ```
 
-Issue vive en `capacita-task-hub`.
-
-Repo dueño:
+Tareas derivadas en Task Hub:
 
 ```text
-misaeln-pc1/Capacita-Zoho-Deluge-Core
+[Zoho][Tarea] Exportar campos actuales de Deals
+[Zoho][Tarea] Validar picklist de etapa comercial
 ```
 
 Si implica ejecutar Deluge, tocar CRM, credenciales, datos reales o workflows, marcar amarillo/rojo y pedir aprobación humana antes de ejecutar.
 
 ## Ejemplo: Licitaciones / Mercado Público
 
+Issue padre en repo de licitaciones:
+
 ```text
-[Licitaciones][Tarea] Revisar bases OTIC y detectar requisitos críticos
+[Licitaciones][Investigación] Revisar bases OTIC y detectar requisitos críticos
 ```
 
-Issue vive en `capacita-task-hub`.
-
-Repo dueño esperado: repo de licitaciones correspondiente si existe caso activo. Si no está claro, usar:
+Tareas en Task Hub:
 
 ```text
-Repo dueño: pendiente de definir
-Tipo: Investigación o Decisión pendiente
-Siguiente acción: determinar repo dueño y alcance
+[Licitaciones][Tarea] Descargar bases oficiales OTIC
+[Licitaciones][Tarea] Armar matriz de requisitos críticos
 ```
 
 ## Ejemplo: tarea personal
@@ -158,82 +206,58 @@ Siguiente acción: determinar repo dueño y alcance
 [Personal][Tarea] Ir al banco
 ```
 
-Issue vive en:
+Vive directamente en:
 
 ```text
 misaeln-pc1/capacita-task-hub
 ```
 
-No requiere rama, PR, decisión ni documentación adicional.
+No requiere issue padre, rama, PR, decisión ni documentación adicional.
 
-## Quién registra el issue
+## Quién registra qué
 
-La regla operativa es:
-
-```text
-El proyecto o chat donde nace la necesidad crea issue maestro en capacita-task-hub.
-```
-
-Ejemplos:
-
-| Dónde nace | Dónde se crea issue maestro | Repo dueño declarado | Dónde se ejecuta si aplica |
-|---|---|---|---|
-| Moodle | `capacita-task-hub` | `capacita-learnops-moodle` | Repo Moodle |
-| Edge | `capacita-task-hub` | `capacita-edge` | Repo Edge |
-| Zoho | `capacita-task-hub` | `Capacita-Zoho-Deluge-Core` | Repo Zoho |
-| Personal | `capacita-task-hub` | No aplica | Misael |
-| Transversal sin dueño | `capacita-task-hub` | Pendiente de definir | Según decisión posterior |
+| Dónde nace | Si es problema/idea/riesgo | Si es tarea ejecutable |
+|---|---|---|
+| Moodle | Issue en repo Moodle | Tarea en Task Hub vinculada al issue padre si existe |
+| Edge | Issue en repo Edge | Tarea en Task Hub vinculada al issue padre si existe |
+| Zoho | Issue en repo Zoho | Tarea en Task Hub vinculada al issue padre si existe |
+| Personal | No aplica | Tarea en Task Hub |
+| Transversal | Global o repo principal según alcance | Tarea en Task Hub vinculada al issue padre |
 
 ## Qué hacer si hay duda
 
-Si no está claro el repo dueño o si todavía es una idea:
+Si no está claro si es tarea o problema:
 
-1. Crear issue en `capacita-task-hub`.
-2. Marcar `Tipo = Idea a evaluar`, `Investigación` o `Decisión pendiente`.
-3. Definir como siguiente acción: `Determinar repo dueño / problema / alcance`.
-4. No ejecutar hasta clasificar si hay riesgo amarillo/rojo.
+1. Preguntar: “¿esto ya se puede ejecutar o todavía hay que analizarlo?”
+2. Si ya se puede ejecutar, crear tarea en Task Hub.
+3. Si falta análisis, crear issue en repo operativo.
+4. Si no existe repo dueño, crear en Task Hub como seguimiento accionable solo con siguiente acción: determinar repo dueño.
+5. Si hay riesgo amarillo/rojo, preferir repo operativo o Global antes que ocultarlo en Task Hub.
 
 ## Regla contra duplicación
 
-Nunca crear dos issues maestros equivalentes para la misma necesidad.
+No crear dos issues equivalentes con el mismo rol.
 
-Incorrecto por defecto:
+Incorrecto:
 
 ```text
-Issue maestro en Task Hub: Subir videos Bunny
-Issue maestro en Moodle: Subir videos Bunny
+Issue padre en Moodle: Analizar autenticación
+Issue padre en Task Hub: Analizar autenticación
 ```
 
 Correcto:
 
 ```text
-Issue maestro único en Task Hub.
-Repo dueño declarado: Moodle.
-PR/commit en Moodle si se ejecuta.
-```
-
-## Issue operativo espejo
-
-Se puede crear issue operativo espejo en el repo dueño solo como excepción:
-
-- si Copilot/Codex/PR Factory lo requiere;
-- si el repo necesita trazabilidad local;
-- si el riesgo técnico exige control interno del repo;
-- si Misael lo pide explícitamente.
-
-Debe quedar vinculado:
-
-```text
-Task Hub #XX -> issue maestro
-Repo operativo #YY -> issue espejo
-PR #ZZ -> evidencia
+Issue padre en Moodle: Analizar autenticación
+Tareas hijas en Task Hub: acciones concretas derivadas
 ```
 
 ## Cierre de ejecución
 
-Al cerrar un issue ejecutivo, completar o comentar:
+Al cerrar una tarea en Task Hub, completar o comentar:
 
 ```text
+Issue padre:
 Repo dueño:
 Rama:
 PR:
@@ -243,4 +267,11 @@ Tiempo real observado:
 Riesgos pendientes:
 ```
 
-Si era idea/decisión/investigación, cerrar solo cuando se haya descartado, transformado o derivado a issues ejecutivos.
+Al cerrar un issue padre en repo operativo, confirmar:
+
+```text
+Tareas derivadas cerradas o descartadas.
+Riesgo resuelto o aceptado.
+Decisión documentada si aplica.
+Evidencia técnica vinculada.
+```
