@@ -2,134 +2,108 @@
 
 ## Propósito
 
-Definir cómo se crean, clasifican, estiman y enrutan issues dentro del **Sistema de Tareas Atlas**, usando:
+Definir cómo se crean, clasifican, estiman y enlazan tareas e issues dentro del **Sistema de Tareas Atlas**, usando:
 
-- Repo maestro de gestión: `capacita-task-hub`.
+- Repo de tareas ejecutables: `capacita-task-hub`.
 - GitHub Project / panel central: **Planificador Atlas**.
 - Repos operativos: Moodle, Edge, Zoho, licitaciones, Diseño de Cursos y otros.
 
 ## Regla principal vigente
 
-> Todo issue de gestión se crea en `capacita-task-hub`. El repo operativo se declara dentro del issue. El **Planificador Atlas** muestra y ordena esos issues.
+> El problema vive en el repo. La tarea ejecutable vive en Task Hub. La evidencia técnica vive en el repo.
 
-Esta regla reemplaza la versión inicial “la tarea vive donde se ejecuta” para resolver el límite de workflows Auto-add de GitHub Projects.
+Esta regla reemplaza la versión intermedia que centralizaba todos los issues en `capacita-task-hub`.
 
 ## Arquitectura
 
 ```text
-Misael / proyecto GPT / Atlas
+Repo operativo = radar del proyecto
+  - ideas
+  - investigaciones
+  - decisiones
+  - riesgos
+  - bloqueos
+  - épicas / iniciativas
         |
+        | genera tareas ejecutables
         v
-capacita-task-hub = issue maestro de gestión
+capacita-task-hub = cola maestra de ejecución
+  - tareas ejecutables
+  - personales
+  - administrativas
+  - seguimientos accionables
         |
         | Auto-add único: is:issue is:open
         v
-Planificador Atlas = tablero central
-        |
-        v
-Repo operativo = lugar de ejecución técnica si aplica
+Planificador Atlas = dashboard de ejecución
 ```
 
-## Issue no significa tarea ejecutiva
+## Regla por tipo de issue
 
-```text
-Issue = unidad de gestión
-Tipo = naturaleza del issue
-Vista = forma de trabajo
-```
-
-Por lo tanto, el Planificador Atlas debe recibir todos los issues abiertos de `capacita-task-hub`, pero el dashboard de trabajo diario debe mostrar solo los issues cuyo `Tipo` corresponda a ejecución.
-
-## Tipos de issue
-
-| Tipo | Qué significa | Se ejecuta directo | Vista principal |
-|---|---|---:|---|
-| Tarea ejecutiva | Acción clara, ya decidida | Sí | Hoy / Ejecución |
-| Idea a evaluar | Posible mejora o intuición no validada | No | Ideas |
-| Decisión pendiente | Hay que elegir ruta antes de ejecutar | No | Decisiones |
-| Investigación | Falta información para decidir | No | Investigación |
-| Bloqueo / incidente | Algo impide avanzar o requiere atención | Depende | Bloqueadas |
-| Épica / iniciativa | Tema grande que generará varias tareas | No directo | Iniciativas |
-| Personal | Acción personal o administrativa simple | Sí, si está clara | Personales |
-| Seguimiento | Esperar, revisar o confirmar algo | Depende | Seguimiento |
+| Tipo de issue | Dónde vive por defecto | Motivo |
+|---|---|---|
+| Tarea ejecutiva | `capacita-task-hub` | Debe entrar al Planificador Atlas y ser gestionable como acción. |
+| Personal | `capacita-task-hub` | Dictado simple / gestión personal. |
+| Administrativa accionable | `capacita-task-hub` | Acción concreta, sin repo técnico. |
+| Seguimiento accionable | `capacita-task-hub` | Revisar, esperar o confirmar algo. |
+| Idea a evaluar | Repo operativo | Debe quedar en el radar natural del proyecto. |
+| Investigación | Repo operativo | El análisis futuro del repo debe verla. |
+| Decisión pendiente | Repo operativo o Global | Condiciona el proyecto o más de un proyecto. |
+| Riesgo / bloqueo | Repo operativo; Global si es transversal | No puede quedar oculto fuera del repo afectado. |
+| Épica / iniciativa | Repo operativo | Tema grande que puede generar múltiples tareas. |
+| Incidente grave | Repo operativo; Global si afecta varios proyectos | Requiere trazabilidad local y revisión posterior. |
 
 ## Regla de workflow
 
-El workflow Auto-add del **Planificador Atlas** debe ser amplio:
+El workflow Auto-add del **Planificador Atlas** se mantiene simple y apunta solo a `capacita-task-hub`:
 
 ```text
 Repository: misaeln-pc1/capacita-task-hub
 Filter: is:issue is:open
 ```
 
-No filtrar por `tipo:tarea-ejecutiva`, porque también deben entrar ideas, decisiones, investigaciones, bloqueos e iniciativas.
+Esto significa que el Planificador Atlas captura tareas ejecutables y seguimientos accionables, no todo el radar de problemas de cada repo.
 
-## Dashboard de tareas
+## Cómo se conectan repo operativo y Task Hub
 
-El tablero puede contener todos los tipos, pero la vista de trabajo diario debe filtrar:
+Cuando un issue del repo operativo genera tareas ejecutables:
+
+1. El issue padre permanece abierto en el repo operativo.
+2. Se crean tareas hijas en `capacita-task-hub`.
+3. Cada tarea hija referencia el issue padre.
+4. El issue padre mantiene una lista de tareas derivadas.
+5. El estado global del problema se reconstruye revisando el issue padre y sus tareas hijas.
 
 ```text
-Tipo = Tarea ejecutiva
-Estado = Hoy / En curso / Próxima
+Repo Moodle #25 = [Auth][Investigación] Analizar cambio de autenticación
+        |
+        +--> Task Hub #80 = [Moodle][Tarea] Levantar requisitos de autenticación
+        +--> Task Hub #81 = [Moodle][Tarea] Validar impacto SENCE/CUS
+        +--> Task Hub #82 = [Moodle][Tarea] Revisar flujo de recuperación de clave
 ```
 
-Las ideas, decisiones e investigaciones deben quedar visibles en vistas separadas, no mezcladas con ejecución diaria.
+## Estados del issue padre en repo operativo
 
-## Campos obligatorios para issues operativos
+El issue padre puede mantenerse abierto mientras existan tareas hijas pendientes.
 
-Todo issue que se refiera a un proyecto operativo debe incluir:
+Estados sugeridos mediante labels o texto:
 
 ```text
-Proyecto operativo:
-Repo dueño:
-Tipo:
-Prioridad:
-Riesgo:
-Responsable:
-Estado:
-Siguiente acción:
-Origen / Validación:
-Tiempo estimado inicial:
-Evidencia esperada:
+estado:analisis
+estado:en-descomposicion
+estado:con-tareas-activas
+estado:bloqueado
+estado:resuelto
 ```
 
-`Repo dueño` no significa que el issue viva en ese repo. Significa que la ejecución, PR, commit o documentación técnica ocurrirá allí si el issue madura a ejecución.
+En el cuerpo o comentarios del issue padre debe existir una sección:
 
-## Regla sobre ramas y PR
+```markdown
+## Tareas derivadas en Task Hub
 
-Crear un issue en `capacita-task-hub` **no** requiere rama, PR ni merge.
-
-Rama/PR aplica solo cuando:
-
-- se modifica documentación oficial;
-- se modifica código;
-- se modifica estructura de un repo;
-- se registra una decisión relevante;
-- se cambia una regla operativa;
-- hay riesgo SENCE, producción, datos, dinero, credenciales o irreversibilidad;
-- se necesita evidencia formal para continuidad o auditoría.
-
-## Issues personales
-
-Los issues personales funcionan como dictado simple.
-
-Ejemplos:
-
-```text
-[Personal][Tarea] Comprar polera
-[Personal][Tarea] Ir al banco a revisar cuenta corriente
-[Personal][Tarea] Viajar hoy en la tarde
-```
-
-Acción esperada:
-
-```text
-Issue directo en capacita-task-hub.
-Auto-add lo lleva al Planificador Atlas.
-Sin rama.
-Sin PR.
-Sin merge.
-Sin validación documental.
+- [ ] capacita-task-hub#80 — Levantar requisitos de autenticación
+- [ ] capacita-task-hub#81 — Validar impacto SENCE/CUS
+- [ ] capacita-task-hub#82 — Revisar flujo de recuperación de clave
 ```
 
 ## Tareas ejecutivas
@@ -142,38 +116,49 @@ Ejemplo:
 [Moodle][Tarea] Subir cinco videos al módulo Access M3
 ```
 
+Vive en:
+
+```text
+misaeln-pc1/capacita-task-hub
+```
+
 Debe indicar:
 
 ```text
 Tipo: Tarea ejecutiva
 Proyecto operativo: Moodle
 Repo dueño: misaeln-pc1/capacita-learnops-moodle
+Issue padre: Moodle #XX, si existe
 Siguiente acción: preparar ejecución controlada
 Evidencia esperada: PR, commit, validación visual o checklist según aplique
 ```
 
-Puede pasar a ejecución técnica o manual.
+## Ideas, investigaciones y decisiones
 
-## Ideas a evaluar
-
-Una idea no se ejecuta directo.
+Una idea no se ejecuta directo y no vive en Task Hub por defecto.
 
 Ejemplo:
 
 ```text
-[Moodle][Idea] Evaluar autenticación diferenciada por módulo
+[Moodle][Investigación] Analizar cambio de autenticación y recuperación de clave
+```
+
+Vive en:
+
+```text
+misaeln-pc1/capacita-learnops-moodle
 ```
 
 Debe indicar:
 
 ```text
-Tipo: Idea a evaluar
-Estado: Inbox / Pendiente de decisión
-Siguiente acción: definir problema, alternativas e impacto
-Origen / Validación: Idea a evaluar
+Tipo: Investigación
+Riesgo: Amarillo/Rojo, según impacto
+Estado: análisis / bloqueado / con tareas activas
+Siguiente acción: definir problema, alternativas, impacto y tareas derivadas
 ```
 
-No se manda a Copilot/Codex ni se convierte en PR técnico hasta madurar.
+No se manda a Copilot/Codex ni se convierte en PR técnico hasta madurar o generar tareas ejecutivas.
 
 ## Decisiones pendientes
 
@@ -187,13 +172,13 @@ Ejemplo incorrecto:
 
 si aún no se validó compatibilidad, costo, licencia o SENCE.
 
-Ejemplo correcto:
+Ejemplo correcto en repo Moodle:
 
 ```text
 [Moodle][Decisión] Evaluar compra vs desarrollo de tema Moodle
 ```
 
-Luego de la decisión pueden nacer tareas ejecutivas:
+Luego de la decisión pueden nacer tareas ejecutivas en Task Hub:
 
 ```text
 [Moodle][Tarea] Comprar tema elegido
@@ -204,55 +189,58 @@ Luego de la decisión pueden nacer tareas ejecutivas:
 ## Flujo de maduración
 
 ```text
-Idea
-  -> Investigación / evaluación
-  -> Decisión
-  -> Tareas ejecutivas
+Issue padre en repo operativo
+  -> Idea / riesgo / investigación / decisión / épica
+  -> Análisis y comentarios
+  -> Tareas ejecutivas en Task Hub
+  -> Ejecución en repo operativo si aplica
   -> PR / commit / evidencia
+  -> Actualización del issue padre
 ```
 
-## Issue operativo espejo
+## Issue espejo
 
-Por defecto, no se crea issue en el repo operativo.
+Con este modelo, el issue del repo operativo no es espejo: es el issue padre cuando se trata de problema, idea, riesgo, decisión, investigación o épica.
 
-Solo se permite crear un issue espejo en el repo operativo cuando:
+No crear issue duplicado en el repo operativo para una tarea ejecutiva normal, salvo que:
 
-- un agente técnico lo necesita explícitamente;
-- PR Factory del repo trabaja desde issues locales;
-- Copilot/Codex requiere el issue en el repo para operar;
-- el repo necesita trazabilidad local por riesgo o auditoría.
+- Copilot/Codex/PR Factory lo necesite explícitamente;
+- el repo requiere trazabilidad local de ejecución;
+- el riesgo técnico lo exige;
+- Misael lo pide explícitamente.
 
-Si se crea issue espejo, debe vincularse:
+Si se crea issue operativo para una tarea ejecutiva, debe vincularse:
 
 ```text
-Task Hub #XX = issue maestro
-Repo operativo #YY = issue operativo espejo
+Repo operativo #XX = issue padre o issue técnico local
+Task Hub #YY = tarea ejecutiva
 PR #ZZ = evidencia de ejecución
 ```
 
 ## Verbos recomendados
 
-| Verbo | Significado |
-|---|---|
-| Comprar | Acción ya decidida. |
-| Evaluar | Decisión pendiente. |
-| Validar | Comprobación requerida. |
-| Investigar | Exploración. |
-| Implementar | Ejecución técnica. |
-| Revisar | Control o auditoría. |
-| Preparar | Trabajo previo. |
-| Esperar | Dependencia externa. |
+| Verbo | Significado | Lugar habitual |
+|---|---|---|
+| Comprar | Acción ya decidida | Task Hub |
+| Subir / crear / actualizar / ejecutar | Acción clara | Task Hub |
+| Evaluar | Decisión pendiente | Repo operativo |
+| Validar | Puede ser tarea o investigación, según claridad | Task Hub o repo operativo |
+| Investigar | Exploración | Repo operativo |
+| Implementar | Ejecución técnica decidida | Task Hub + repo operativo para PR |
+| Revisar | Control o auditoría | Depende del alcance |
+| Preparar | Trabajo previo accionable | Task Hub |
+| Esperar | Dependencia externa accionable | Task Hub |
 
 ## Campo clave: Origen / Validación
 
-Valores recomendados:
+Valores recomendados para tareas en Task Hub:
 
 ```text
 Dictado simple
+Derivado de issue padre
 Derivado de decisión validada
 Derivado de PR
 Pendiente de decisión
-Idea a evaluar
 Incidente / bloqueo
 ```
 
@@ -260,33 +248,41 @@ Incidente / bloqueo
 
 | Semáforo | Uso | Acción |
 |---|---|---|
-| Verde | Personal, administrativo simple, documental reversible | Crear issue y avanzar. |
-| Amarillo | Proyecto, datos, SENCE, CRM, Moodle, producción cercana, dinero menor | Crear issue con control y evidencia. |
+| Verde | Personal, administrativo simple, documental reversible | Crear tarea en Task Hub o issue menor en repo según tipo. |
+| Amarillo | Proyecto, datos, SENCE, CRM, Moodle, producción cercana, dinero menor | Mantener problema/riesgo en repo; crear tareas ejecutivas en Task Hub. |
 | Rojo | Credenciales, producción irreversible, legal, dinero relevante, datos personales críticos, merge/main | Detener y pedir aprobación humana. |
 
 ## Flujo cuando Misael dice “agrégalo al Planificador”
 
-1. Crear issue maestro en `capacita-task-hub`.
-2. Definir `Tipo`: tarea ejecutiva, idea, decisión, investigación, bloqueo, épica, personal o seguimiento.
-3. Si corresponde a un proyecto, indicar `Proyecto operativo` y `Repo dueño`.
-4. Clasificar estado, prioridad, riesgo, responsable y siguiente acción.
-5. Registrar tiempo estimado inicial si es P1/P2, repetitivo o útil para historial.
-6. Si es idea/decisión/investigación, no redactar como ejecución directa.
-7. Si es tarea ejecutiva, indicar evidencia esperada y repo de ejecución.
-8. Reportar enlace del issue.
-9. Si el Auto-add está activo, el issue entrará al **Planificador Atlas** automáticamente.
+1. Identificar si es una tarea ejecutable o no.
+2. Si es tarea ejecutable, crear issue en `capacita-task-hub`.
+3. Si es idea, investigación, decisión, riesgo, bloqueo o épica, crear issue en el repo operativo correspondiente.
+4. Si el issue del repo genera tareas, crear tareas derivadas en `capacita-task-hub` y enlazarlas.
+5. Clasificar estado, prioridad, riesgo, responsable y siguiente acción.
+6. Registrar tiempo estimado inicial si es tarea P1/P2, repetitiva o útil para historial.
+7. Reportar enlace del issue y, si aplica, vínculo padre/hija.
 
-## Definition of Done de un issue bien creado
+## Definition of Done de una tarea ejecutiva bien creada
 
-- Título claro con `[Proyecto][Tipo]`.
+- Título claro con `[Proyecto][Tarea]`.
 - Issue creado en `capacita-task-hub`.
-- Tipo correcto.
 - Proyecto operativo indicado si aplica.
 - Repo dueño indicado si aplica.
+- Issue padre indicado si existe.
 - Siguiente acción explícita.
 - Responsable inicial.
 - Prioridad inicial.
 - Riesgo inicial.
-- Origen/validación indicado si aplica.
-- Estimación inicial si es P1/P2, repetitivo o de esta semana.
-- Evidencia esperada si es tarea ejecutiva.
+- Origen/validación indicado.
+- Estimación inicial si es P1/P2, repetitiva o de esta semana.
+- Evidencia esperada indicada.
+
+## Definition of Done de un issue padre bien creado
+
+- Issue creado en el repo operativo correcto.
+- Tipo correcto: idea, investigación, decisión, riesgo, bloqueo, épica o incidente.
+- Problema o pregunta clara.
+- Riesgo indicado.
+- Siguiente acción de análisis indicada.
+- Tareas derivadas listadas si existen.
+- Estado actualizado cuando cambien las tareas hijas.
