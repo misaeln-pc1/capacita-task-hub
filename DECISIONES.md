@@ -22,7 +22,7 @@
 
 | Elemento | Nombre |
 |---|---|
-| Repo | `capacita-task-hub` |
+| Repo de tareas | `capacita-task-hub` |
 | GitHub Project | **Planificador Atlas** |
 | Sistema completo | **Sistema de Tareas Atlas** |
 
@@ -49,81 +49,89 @@ Tarea con repo dueño -> issue en repo dueño + visible en Planificador Atlas.
 Tarea sin repo dueño -> issue en capacita-task-hub + visible en Planificador Atlas.
 ```
 
-**Estado:** superada por la decisión posterior de centralizar issues de gestión en `capacita-task-hub`.
-
-**Motivo del cambio:** límite de workflows Auto-add de GitHub Projects. Cubrir muchos repos con un workflow por repo no escala en el plan actual.
+**Estado:** superada por una regla más precisa que separa problemas de tareas ejecutables.
 
 ---
 
-## 2026-07-04 — Centralizar todos los issues de gestión en Task Hub
+## 2026-07-04 — Centralizar todos los issues de gestión en Task Hub — descartada
 
-**Decisión vigente:** todo issue de gestión se crea en `misaeln-pc1/capacita-task-hub`.
+**Decisión intermedia descartada:** todo issue de gestión se crea en `capacita-task-hub`.
 
-**Regla:**
+**Motivo del descarte:** aunque resolvía el límite de workflows Auto-add, dejaba fuera del radar de cada repo los problemas, riesgos, ideas, investigaciones y decisiones. Eso hacía incompleto cualquier análisis local del repo operativo.
+
+**Ejemplo de riesgo:** un problema grave de autenticación en Moodle no debe quedar solo en Task Hub, porque al revisar el repo Moodle parecería que no existe.
+
+---
+
+## 2026-07-04 — Regla vigente: problema en repo, tarea en Task Hub
+
+**Decisión vigente:** separar issue padre y tarea ejecutable.
 
 ```text
-Task Hub = registro maestro de issues.
-Planificador Atlas = vista central.
-Repo operativo = lugar de ejecución técnica si aplica.
+El problema vive en el repo.
+La tarea ejecutable vive en Task Hub.
+La evidencia técnica vive en el repo.
 ```
 
-**Motivo:** permite usar un solo workflow Auto-add desde `capacita-task-hub` hacia **Planificador Atlas**:
+**Resultado operativo:**
+
+| Elemento | Dónde vive |
+|---|---|
+| Idea a evaluar | Repo operativo |
+| Investigación | Repo operativo |
+| Decisión pendiente | Repo operativo o Global |
+| Riesgo / bloqueo | Repo operativo; Global si es transversal |
+| Épica / iniciativa | Repo operativo |
+| Incidente grave | Repo operativo; Global si afecta varios proyectos |
+| Tarea ejecutiva | `capacita-task-hub` |
+| Personal / administrativa / seguimiento accionable | `capacita-task-hub` |
+
+**Motivo:** conservar el radar del proyecto en su repo natural y usar Task Hub como cola de ejecución centralizada.
+
+---
+
+## 2026-07-04 — Auto-add único solo para tareas ejecutables
+
+**Decisión:** mantener un solo workflow Auto-add desde `capacita-task-hub` hacia **Planificador Atlas**.
 
 ```text
 Repository: misaeln-pc1/capacita-task-hub
 Filter: is:issue is:open
 ```
 
-**Efecto:** las tareas de Moodle, Edge, Zoho, Licitaciones, Diseño Cursos y otros proyectos también nacen como issues en Task Hub, pero indicando `Proyecto operativo` y `Repo dueño`.
+**Alcance:** captura tareas ejecutables, personales, administrativas y seguimientos accionables creados en Task Hub.
 
-**Riesgo:** amarillo operativo bajo. Se pierde parte de trazabilidad local en cada repo, mitigada con campos obligatorios y PR/commit de evidencia.
+**No captura:** ideas, investigaciones, decisiones, riesgos, bloqueos y épicas de repos operativos. Esos se revisan en el repo correspondiente.
+
+**Motivo:** resolver el límite de workflows sin ocultar problemas de los repos operativos.
 
 ---
 
-## 2026-07-04 — Todo issue abierto entra al Planificador Atlas
+## 2026-07-04 — Vínculo padre/hija entre repo operativo y Task Hub
 
-**Decisión:** el workflow Auto-add no debe filtrar solo tareas ejecutivas.
+**Decisión:** cuando un issue del repo operativo genere acciones concretas, esas acciones se crean como tareas en Task Hub y quedan vinculadas.
 
 **Regla:**
 
 ```text
-Todos los issues abiertos de Task Hub entran al Planificador Atlas.
-El campo Tipo decide si se ejecutan, evalúan, investigan o quedan como decisión pendiente.
+Repo operativo #XX = issue padre.
+Task Hub #YY = tarea ejecutiva derivada.
 ```
 
-**Motivo:** ideas, decisiones, investigaciones, bloqueos e iniciativas también deben estar visibles para no perderlas.
+**El issue padre debe listar tareas derivadas:**
 
-**Vista clave:** el dashboard diario de trabajo filtra solo `Tipo = Tarea ejecutiva`.
+```markdown
+## Tareas derivadas en Task Hub
 
----
+- [ ] capacita-task-hub#YY — Descripción breve
+```
 
-## 2026-07-04 — Issue no significa tarea ejecutiva
-
-**Decisión:** un issue es una unidad de gestión, no necesariamente una tarea ejecutable.
-
-**Tipos oficiales iniciales:**
-
-- Tarea ejecutiva.
-- Idea a evaluar.
-- Decisión pendiente.
-- Investigación.
-- Bloqueo/Incidente.
-- Épica/Iniciativa.
-- Personal.
-- Seguimiento.
-- Administrativa.
-
-**Motivo:** evitar que una idea inmadura se transforme accidentalmente en trabajo técnico.
-
-**Regla operativa:**
+**Cada tarea Task Hub debe declarar:**
 
 ```text
-Una tarea ejecuta.
-Una idea se evalúa.
-Una decisión se valida.
-Una investigación busca información.
-Una épica se divide.
-Un bloqueo se destraba.
+Issue padre:
+Repo dueño:
+Evidencia esperada:
 ```
 
 ---
@@ -132,7 +140,7 @@ Un bloqueo se destraba.
 
 **Decisión:** crear tarea no requiere rama, PR ni merge.
 
-**Motivo:** una tarea es una acción pendiente, no una decisión ni una modificación documental.
+**Motivo:** una tarea es una acción pendiente, no necesariamente una decisión ni una modificación documental.
 
 **Excepción:** usar rama/PR cuando la tarea implique modificar documentación oficial, código, estructura, decisión relevante o criterio operativo.
 
@@ -157,7 +165,7 @@ Un bloqueo se destraba.
 
 **Decisión:** dividir el sistema en tres capas progresivas:
 
-1. **Visibilidad:** capturar pendientes y urgencias.
+1. **Visibilidad:** capturar pendientes ejecutables y urgencias.
 2. **Tiempo:** estimar esfuerzo, carga humana, confianza e incertidumbre.
 3. **Automatización:** identificar qué puede delegarse a IA/agentes/API.
 
@@ -186,4 +194,4 @@ Un bloqueo se destraba.
 
 **Motivo:** automatizar sin backlog real genera sobreingeniería.
 
-**Siguiente paso:** cargar issues reales, observar uso y recién después proponer automatizaciones.
+**Siguiente paso:** probar vínculo issue padre -> tareas Task Hub antes de cargar backlog completo.
