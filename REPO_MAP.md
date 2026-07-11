@@ -17,8 +17,10 @@ Mapa rápido del repo `capacita-task-hub` para humanos y agentes IA.
 | `AGENTS.md` | Reglas para agentes que trabajen en este repo. |
 | `PROMPTS_BASE.md` | Prompts reutilizables para crear tareas y configurar el Planificador. |
 | `SKILLS_USED.md` | Skills revisadas/usadas y límites. |
-| `REVIEW_REQUEST.md` | Solicitud de revisión del bootstrap documental. |
+| `REVIEW_REQUEST.md` | Solicitud de revisión del cambio activo. |
 | `CHANGELOG_AGENT.md` | Registro de cambios hechos por Atlas/agentes. |
+| `dashboard/index.html` | Dashboard visual V0 portable, de solo lectura y basado en snapshot. |
+| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md` | Arquitectura, fuente, límites, validación y handoff a Sites. |
 | `docs/CAPAS_PLANIFICADOR_ATLAS.md` | Capa 1, 2 y 3. |
 | `docs/CAMPOS_PLANIFICADOR_ATLAS.md` | Campos y vistas recomendadas del GitHub Project. |
 | `docs/FLUJO_TAREAS_REPOS_OPERATIVOS.md` | Cómo se crean tareas desde repos operativos. |
@@ -30,6 +32,7 @@ Mapa rápido del repo `capacita-task-hub` para humanos y agentes IA.
 2. Proyecto operativo genera tarea técnica o documental.
 3. Atlas identifica tarea transversal o pendiente sin repo dueño.
 4. Decisión validada genera tarea ejecutiva posterior.
+5. Revisión snapshot genera una vista visual sin modificar la fuente oficial.
 
 ## Salidas principales
 
@@ -37,6 +40,7 @@ Mapa rápido del repo `capacita-task-hub` para humanos y agentes IA.
 2. Issue en repo operativo para tareas con dueño.
 3. Tarea visible en **Planificador Atlas**.
 4. Referencia a PR/documento/decisión cuando aplique.
+5. Dashboard visual portable para lectura ejecutiva y futura publicación en Sites.
 
 ## Qué no debe contener este repo
 
@@ -48,6 +52,8 @@ Mapa rápido del repo `capacita-task-hub` para humanos y agentes IA.
 - Tareas técnicas que pertenecen a un repo operativo.
 - Duplicados de issues de otros repos.
 
+El HTML del dashboard es un prototipo interno de solo lectura. No es producción, no ejecuta integraciones y no reemplaza los issues.
+
 ## Convención de ramas
 
 Ramas documentales:
@@ -56,10 +62,17 @@ Ramas documentales:
 docs/task-hub-[objetivo]
 ```
 
-Ejemplo actual:
+Features visuales o funcionales controladas:
+
+```text
+feature/task-hub-[objetivo]
+```
+
+Ejemplos:
 
 ```text
 docs/task-hub-bootstrap-v01
+feature/task-hub-visual-dashboard-v0
 ```
 
-Nunca trabajar directo en `main` para documentación estructural.
+Nunca trabajar directo en `main`.
