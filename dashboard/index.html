@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Planificador Atlas · Dashboard V0</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: rgba(17, 31, 51, .86);
+      --panel-2: rgba(22, 39, 64, .92);
+      --line: rgba(148, 163, 184, .16);
+      --text: #edf5ff;
+      --muted: #94a7bf;
+      --accent: #6ee7ff;
+      --accent-2: #8b5cf6;
+      --green: #3ddc97;
+      --amber: #fbbf24;
+      --red: #fb7185;
+      --shadow: 0 18px 55px rgba(0,0,0,.34);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(110,231,255,.12), transparent 33%),
+        radial-gradient(circle at 95% 5%, rgba(139,92,246,.14), transparent 30%),
+        linear-gradient(180deg, #07101d 0%, #0a1424 50%, #08111f 100%);
+    }
+    a { color: inherit; }
+    button, select, input { font: inherit; }
+    .shell { width: min(1480px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 60px; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(24px, 5vw, 52px);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(22,39,64,.98), rgba(10,22,39,.91));
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -70% 40%;
+      height: 380px;
+      background: radial-gradient(circle, rgba(110,231,255,.18), transparent 64%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(110,231,255,.22);
+      border-radius: 999px;
+      color: var(--accent);
+      background: rgba(110,231,255,.07);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; max-width: 850px; font-size: clamp(34px, 6vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .hero p { margin: 0; max-width: 780px; color: #bdcbe0; font-size: clamp(15px, 2vw, 19px); line-height: 1.55; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .meta-chip {
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .grid { display: grid; gap: 16px; }
+    .metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 18px; }
+    .metric {
+      min-height: 142px;
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 12px 32px rgba(0,0,0,.18);
+    }
+    .metric-label { color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .metric-value { margin-top: 8px; font-size: 44px; line-height: 1; font-weight: 850; letter-spacing: -.04em; }
+    .metric-note { margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .section { margin-top: 22px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+    .section h2 { margin: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -.025em; }
+    .section-sub { margin-top: 5px; color: var(--muted); font-size: 14px; }
+    .focus-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .focus-card, .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 12px 34px rgba(0,0,0,.18);
+    }
+    .focus-card { padding: 21px; position: relative; overflow: hidden; }
+    .focus-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
+    .focus-card[data-risk="Rojo"]::before { background: var(--red); }
+    .focus-card[data-risk="Amarillo"]::before { background: var(--amber); }
+    .focus-card h3 { margin: 14px 0 8px; font-size: 19px; line-height: 1.28; }
+    .focus-card p { margin: 0; color: var(--muted); line-height: 1.48; font-size: 14px; }
+    .row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: #c8d6ea;
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .badge.red { color: #ffd2da; border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.09); }
+    .badge.amber { color: #ffe39a; border-color: rgba(251,191,36,.3); background: rgba(251,191,36,.08); }
+    .badge.green { color: #b9f7db; border-color: rgba(61,220,151,.3); background: rgba(61,220,151,.08); }
+    .action-link {
+      display: inline-flex;
+      margin-top: 16px;
+      padding: 9px 12px;
+      border-radius: 11px;
+      background: rgba(110,231,255,.09);
+      border: 1px solid rgba(110,231,255,.22);
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .timeline {
+      position: relative;
+      padding: 22px;
+      overflow: hidden;
+    }
+    .timeline-track {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(150px, 1fr));
+      gap: 12px;
+      overflow-x: auto;
+      padding: 6px 4px 12px;
+      scrollbar-color: #334a68 transparent;
+    }
+    .milestone {
+      min-height: 168px;
+      padding: 16px;
+      border-radius: 17px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+    }
+    .milestone .date { color: var(--accent); font-size: 12px; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; }
+    .milestone h3 { margin: 12px 0 10px; font-size: 16px; line-height: 1.3; }
+    .milestone p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(200px, 1.4fr) repeat(4, minmax(130px, .6fr));
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+    }
+    .control {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #0c192b;
+      color: var(--text);
+      padding: 0 12px;
+      outline: none;
+    }
+    .control:focus { border-color: rgba(110,231,255,.45); box-shadow: 0 0 0 3px rgba(110,231,255,.08); }
+    .task-layout { grid-template-columns: 1.5fr .8fr; align-items: start; }
+    .task-list { display: grid; gap: 10px; }
+    .task {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--panel);
+    }
+    .task-id {
+      width: 48px; height: 48px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: rgba(110,231,255,.08);
+      color: var(--accent);
+      font-weight: 850;
+    }
+    .task h3 { margin: 0 0 7px; font-size: 16px; line-height: 1.32; }
+    .task p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .task-side { text-align: right; min-width: 148px; }
+    .task-date { color: #cfdbeb; font-weight: 750; font-size: 12px; }
+    .task-open { display: inline-flex; margin-top: 8px; color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 800; }
+    .panel { padding: 19px; }
+    .panel h3 { margin: 0 0 13px; font-size: 18px; }
+    .stack { display: grid; gap: 10px; }
+    .stack-item {
+      padding: 13px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+    }
+    .stack-item strong { display: block; margin-bottom: 5px; font-size: 14px; }
+    .stack-item span { color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .empty { padding: 28px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; }
+    .footnote {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(17,31,51,.68);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .footnote strong { color: var(--text); }
+    @media (max-width: 1100px) {
+      .metrics { grid-template-columns: repeat(3, 1fr); }
+      .focus-grid { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr 1fr 1fr; }
+      .task-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 16px, 1480px); padding-top: 8px; }
+      .hero { border-radius: 22px; padding: 24px 20px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric { min-height: 120px; }
+      .metric-value { font-size: 36px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .task { grid-template-columns: 42px minmax(0, 1fr); }
+      .task-id { width: 42px; height: 42px; }
+      .task-side { grid-column: 2; text-align: left; min-width: 0; }
+    }
+    @media (max-width: 460px) {
+      .metrics { grid-template-columns: 1fr; }
+      h1 { font-size: 39px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <span class="eyebrow">Sistema de Tareas Atlas · Dashboard V0</span>
+      <h1>Planificar antes de que la fecha mande.</h1>
+      <p>Vista ejecutiva de tareas abiertas, prioridades, bloqueos y calendario de hitos. GitHub Issues sigue siendo la fuente oficial; este tablero es una capa visual de lectura.</p>
+      <div class="hero-meta">
+        <span class="meta-chip">Snapshot: 11 jul 2026 · 05:14 America/Santiago</span>
+        <span class="meta-chip">Fuente: capacita-task-hub · issues abiertos</span>
+        <span class="meta-chip">Modo: snapshot estático · sin API ni credenciales</span>
+      </div>
+    </header>
+
+    <section class="grid metrics" aria-label="Indicadores principales">
+      <article class="metric"><div class="metric-label">Tareas abiertas</div><div class="metric-value" id="metric-total">13</div><div class="metric-note">Snapshot operativo visible en Task Hub.</div></article>
+      <article class="metric"><div class="metric-label">Prioridad P1</div><div class="metric-value" id="metric-p1">7</div><div class="metric-note">Requieren foco o definición de secuencia.</div></article>
+      <article class="metric"><div class="metric-label">Bloqueadas / vencidas</div><div class="metric-value" id="metric-blocked">2</div><div class="metric-note">Incluye dependencias y fecha objetivo superada.</div></article>
+      <article class="metric"><div class="metric-label">Sin fecha absoluta</div><div class="metric-value" id="metric-undated">11</div><div class="metric-note">Principal brecha para programar carga real.</div></article>
+      <article class="metric"><div class="metric-label">Hito rojo</div><div class="metric-value" id="metric-red">1</div><div class="metric-note">SOFOFA: 22 jul 2026 · 14:00.</div></article>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Foco inmediato</h2><div class="section-sub">Máximo tres acciones para evitar dispersión.</div></div>
+      </div>
+      <div class="grid focus-grid" id="focus-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Ruta crítica SOFOFA</h2><div class="section-sub">Fechas internas propuestas; el hito oficial permanece en GitHub.</div></div>
+      </div>
+      <div class="panel timeline">
+        <div class="timeline-track" id="timeline-track"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><h2>Explorar tareas</h2><div class="section-sub"><span id="result-count">13</span> resultados según filtros.</div></div>
+      </div>
+      <div class="toolbar" aria-label="Filtros del dashboard">
+        <input id="search" class="control" type="search" placeholder="Buscar tarea, proyecto o siguiente acción">
+        <select id="priority" class="control"><option value="">Todas las prioridades</option><option>P1</option><option>P2</option><option>P3</option></select>
+        <select id="risk" class="control"><option value="">Todos los riesgos</option><option>Rojo</option><option>Amarillo</option><option>Verde</option></select>
+        <select id="status" class="control"><option value="">Todos los estados</option></select>
+        <select id="project" class="control"><option value="">Todos los proyectos</option></select>
+      </div>
+    </section>
+
+    <section class="section grid task-layout">
+      <div id="task-list" class="task-list"></div>
+      <aside class="stack">
+        <div class="panel">
+          <h3>Brechas de planificación</h3>
+          <div class="stack" id="planning-gaps"></div>
+        </div>
+        <div class="panel">
+          <h3>Lectura rápida</h3>
+          <div class="stack">
+            <div class="stack-item"><strong>GitHub manda</strong><span>El estado oficial, cierre y evidencia siguen en cada issue.</span></div>
+            <div class="stack-item"><strong>Sites será la capa de publicación</strong><span>Esta V0 está diseñada como HTML portable para una fase posterior.</span></div>
+            <div class="stack-item"><strong>Sin sincronización automática</strong><span>El snapshot debe regenerarse o actualizarse manualmente hasta aprobar una integración.</span></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="footnote">
+      <strong>Fuente y límite:</strong> snapshot manual de issues abiertos de <code>misaeln-pc1/capacita-task-hub</code> al 11 de julio de 2026. No consulta GitHub en tiempo real, no modifica tareas y no expone credenciales. Las fechas internas SOFOFA son una propuesta de planificación y deben validarse antes de convertirlas en compromisos oficiales.
+    </footer>
+  </main>
+
+  <script>
+    const SNAPSHOT_DATE = new Date('2026-07-11T05:14:00-04:00');
+    const TASKS = [{"id": 5, "title": "Enviar factura a Banco Central", "project": "Task Hub", "type": "Administrativa", "priority": "P1", "risk": "Amarillo", "owner": "Misael", "status": "Hoy", "due": null, "dateLabel": "Fecha relativa “Hoy”; normalizar a fecha absoluta", "next": "Validar RUT, monto, OC/HES, glosa y canal; enviar y guardar evidencia.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/5", "blocked": false, "delegable": false}, {"id": 10, "title": "Levantar flujo actual de recuperación de clave", "project": "Moodle", "type": "Técnico", "priority": "P1", "risk": "Amarillo", "owner": "Misael / Atlas", "status": "Próxima", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Documentar pantallas, pasos, responsables y fricciones sin modificar Moodle.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/10", "blocked": false, "delegable": true}, {"id": 11, "title": "Validar impacto SENCE/CUS del cambio de autenticación", "project": "Moodle", "type": "Riesgo/Bloqueo", "priority": "P1", "risk": "Amarillo", "owner": "Misael / Atlas", "status": "Próxima", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Revisar dependencias SENCE/CUS y recomendar avanzar, bloquear o investigar.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/11", "blocked": false, "delegable": true}, {"id": 12, "title": "Propagar regla Atlas de issues y tareas a repos activos", "project": "Global", "type": "Documental", "priority": "P1", "risk": "Amarillo", "owner": "Misael / Atlas", "status": "En curso", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Revisar PR listos y repos bloqueados; cerrar propagaciones ya aplicadas.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/12", "blocked": false, "delegable": true}, {"id": 14, "title": "Propagar regla de link directo en reportes de PR", "project": "Global", "type": "Documental", "priority": "P2", "risk": "Verde", "owner": "Atlas", "status": "Próxima", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Validar si basta la referencia global o si debe propagarse a repos activos.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/14", "blocked": false, "delegable": true}, {"id": 15, "title": "Implementar piloto R2 fuentes pesadas SOFOFA 2026-01", "project": "Licitaciones", "type": "Técnico", "priority": "P2", "risk": "Amarillo", "owner": "Misael", "status": "Vencida", "due": "2026-07-10", "dateLabel": "Vencida: 10 jul 2026", "next": "Decidir si sigue en camino crítico; si continúa, registrar ruta, hash y recuperación.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/15", "blocked": true, "delegable": false}, {"id": 16, "title": "Definir schema D1 para Contexto WhatsApp", "project": "WhatsApp / Zoho", "type": "Técnico", "priority": "P2", "risk": "Amarillo", "owner": "Atlas", "status": "Próxima", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Preparar schema documental con datos ficticios; no crear D1 real.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/16", "blocked": false, "delegable": true}, {"id": 17, "title": "Ritual diario de priorización comercial Capacita", "project": "Global / Comercial", "type": "Seguimiento", "priority": "P1", "risk": "Amarillo", "owner": "Misael / Atlas", "status": "En curso", "due": null, "dateLabel": "Recurrente diario", "next": "Mantener máximo tres prioridades de impacto comercial por día.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/17", "blocked": false, "delegable": true}, {"id": 18, "title": "Comprar licencias de Windows y Office para notebooks", "project": "Task Hub", "type": "Administrativa", "priority": "P2", "risk": "Amarillo", "owner": "Misael", "status": "Inbox", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Inventariar equipos, versiones y cantidad antes de cotizar licencias trazables.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/18", "blocked": false, "delegable": false}, {"id": 19, "title": "Gestionar apertura de cuenta corriente en Scotiabank", "project": "Task Hub", "type": "Administrativa", "priority": "P2", "risk": "Amarillo", "owner": "Misael", "status": "Inbox", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Definir titularidad personal/empresa y pedir requisitos y costos vigentes.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/19", "blocked": false, "delegable": false}, {"id": 20, "title": "Crear piloto de brief GTM para landing Excel presencial", "project": "Edge / GTM", "type": "Documental", "priority": "P2", "risk": "Verde", "owner": "Atlas", "status": "Bloqueada", "due": null, "dateLabel": "Sin fecha objetivo", "next": "Revalidar dependencia Global #87 y estado posterior antes de ejecutar.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/20", "blocked": true, "delegable": true}, {"id": 21, "title": "Entregar licitación SOFOFA", "project": "Licitaciones", "type": "Hito", "priority": "P1", "risk": "Rojo", "owner": "Misael", "status": "Próxima", "due": "2026-07-22T14:00:00-04:00", "dateLabel": "22 jul 2026 · 14:00", "next": "Cerrar cursos, Go/No-Go, anexos, costos, documentos y revisión final.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/21", "blocked": false, "delegable": false}, {"id": 23, "title": "Construir Dashboard Visual Planificador Atlas V0", "project": "Task Hub", "type": "Técnico / Documental", "priority": "P1", "risk": "Amarillo", "owner": "Atlas", "status": "En curso", "due": null, "dateLabel": "En ejecución", "next": "Crear HTML portable, documentar snapshot y abrir PR draft.", "url": "https://github.com/misaeln-pc1/capacita-task-hub/issues/23", "blocked": false, "delegable": true}];
+    const MILESTONES = [{"date": "2026-07-12", "label": "Cursos definitivos + Go/No-Go", "kind": "Interna", "owner": "Misael / Atlas", "risk": "Amarillo"}, {"date": "2026-07-14", "label": "PF, metodología y requisitos técnicos", "kind": "Interna", "owner": "Atlas / Misael", "risk": "Amarillo"}, {"date": "2026-07-16", "label": "Costos, utilidad y anexos económicos", "kind": "Interna", "owner": "Misael / Atlas", "risk": "Amarillo"}, {"date": "2026-07-17", "label": "Documentos administrativos completos", "kind": "Interna", "owner": "Misael", "risk": "Amarillo"}, {"date": "2026-07-20", "label": "Correcciones cerradas y versión congelada", "kind": "Interna", "owner": "Misael / Atlas", "risk": "Amarillo"}, {"date": "2026-07-21", "label": "Validación humana, firma y prueba de carga", "kind": "Interna", "owner": "Misael", "risk": "Rojo"}, {"date": "2026-07-22T10:00:00-04:00", "label": "Objetivo interno de envío SOFOFA", "kind": "Interna", "owner": "Misael", "risk": "Rojo"}, {"date": "2026-07-22T14:00:00-04:00", "label": "Límite oficial SOFOFA", "kind": "Externa", "owner": "Misael", "risk": "Rojo"}];
+    const FOCUS_IDS = [5, 21, 15];
+
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    const riskClass = risk => risk === 'Rojo' ? 'red' : risk === 'Amarillo' ? 'amber' : 'green';
+    const formatDate = value => {
+      const d = new Date(value.length === 10 ? value + 'T12:00:00-04:00' : value);
+      return new Intl.DateTimeFormat('es-CL', {day:'2-digit', month:'short', year:'numeric', hour: value.includes('T') ? '2-digit' : undefined, minute: value.includes('T') ? '2-digit' : undefined}).format(d);
+    };
+
+    function populateFilters() {
+      const statuses = [...new Set(TASKS.map(t => t.status))].sort();
+      const projects = [...new Set(TASKS.map(t => t.project))].sort();
+      document.querySelector('#status').insertAdjacentHTML('beforeend', statuses.map(v => `<option>${esc(v)}</option>`).join(''));
+      document.querySelector('#project').insertAdjacentHTML('beforeend', projects.map(v => `<option>${esc(v)}</option>`).join(''));
+    }
+
+    function renderFocus() {
+      const focus = FOCUS_IDS.map(id => TASKS.find(t => t.id === id)).filter(Boolean);
+      document.querySelector('#focus-grid').innerHTML = focus.map(t => `
+        <article class="focus-card" data-risk="${esc(t.risk)}">
+          <div class="row">
+            <span class="badge">${esc(t.priority)}</span>
+            <span class="badge ${riskClass(t.risk)}">${esc(t.risk)}</span>
+            <span class="badge">${esc(t.project)}</span>
+          </div>
+          <h3>#${t.id} · ${esc(t.title)}</h3>
+          <p>${esc(t.next)}</p>
+          <a class="action-link" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer">Abrir issue ↗</a>
+        </article>
+      `).join('');
+    }
+
+    function renderTimeline() {
+      document.querySelector('#timeline-track').innerHTML = MILESTONES.map(m => `
+        <article class="milestone">
+          <div class="date">${esc(formatDate(m.date))} · ${esc(m.kind)}</div>
+          <h3>${esc(m.label)}</h3>
+          <div class="row"><span class="badge ${riskClass(m.risk)}">${esc(m.risk)}</span></div>
+          <p style="margin-top:10px">Responsable: ${esc(m.owner)}</p>
+        </article>
+      `).join('');
+    }
+
+    function renderGaps() {
+      const undated = TASKS.filter(t => !t.due).length;
+      const relative = TASKS.filter(t => t.dateLabel.includes('relativa')).length;
+      const blocked = TASKS.filter(t => t.blocked).length;
+      const items = [
+        [undated + ' tareas sin fecha', 'Definir fecha interna solo para P1/P2 activas, no para todo el backlog.'],
+        [relative + ' fecha relativa', 'Reemplazar “Hoy” por una fecha absoluta para conservar significado.'],
+        [blocked + ' bloqueadas', 'Resolver dependencia o decidir explícitamente pausa/cierre.']
+      ];
+      document.querySelector('#planning-gaps').innerHTML = items.map(([a,b]) => `<div class="stack-item"><strong>${esc(a)}</strong><span>${esc(b)}</span></div>`).join('');
+    }
+
+    function currentFilters() {
+      return {
+        q: document.querySelector('#search').value.trim().toLowerCase(),
+        priority: document.querySelector('#priority').value,
+        risk: document.querySelector('#risk').value,
+        status: document.querySelector('#status').value,
+        project: document.querySelector('#project').value
+      };
+    }
+
+    function filteredTasks() {
+      const f = currentFilters();
+      return TASKS.filter(t => {
+        const text = [t.title,t.project,t.type,t.owner,t.status,t.next,t.dateLabel].join(' ').toLowerCase();
+        return (!f.q || text.includes(f.q))
+          && (!f.priority || t.priority === f.priority)
+          && (!f.risk || t.risk === f.risk)
+          && (!f.status || t.status === f.status)
+          && (!f.project || t.project === f.project);
+      }).sort((a,b) => {
+        const p = {P1:0,P2:1,P3:2};
+        const risk = {Rojo:0,Amarillo:1,Verde:2};
+        return (p[a.priority]-p[b.priority]) || (risk[a.risk]-risk[b.risk]) || a.id-b.id;
+      });
+    }
+
+    function renderTasks() {
+      const data = filteredTasks();
+      document.querySelector('#result-count').textContent = data.length;
+      const root = document.querySelector('#task-list');
+      if (!data.length) {
+        root.innerHTML = '<div class="empty">No hay tareas que coincidan con estos filtros.</div>';
+        return;
+      }
+      root.innerHTML = data.map(t => `
+        <article class="task">
+          <div class="task-id">#${t.id}</div>
+          <div>
+            <div class="row" style="margin-bottom:8px">
+              <span class="badge">${esc(t.priority)}</span>
+              <span class="badge ${riskClass(t.risk)}">${esc(t.risk)}</span>
+              <span class="badge">${esc(t.status)}</span>
+              <span class="badge">${esc(t.owner)}</span>
+            </div>
+            <h3>${esc(t.title)}</h3>
+            <p>${esc(t.next)}</p>
+          </div>
+          <div class="task-side">
+            <div class="task-date">${esc(t.dateLabel)}</div>
+            <a class="task-open" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer">Ver en GitHub ↗</a>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function reconcileMetrics() {
+      document.querySelector('#metric-total').textContent = TASKS.length;
+      document.querySelector('#metric-p1').textContent = TASKS.filter(t => t.priority === 'P1').length;
+      document.querySelector('#metric-blocked').textContent = TASKS.filter(t => t.blocked || t.status === 'Vencida').length;
+      document.querySelector('#metric-undated').textContent = TASKS.filter(t => !t.due).length;
+      document.querySelector('#metric-red').textContent = TASKS.filter(t => t.risk === 'Rojo').length;
+    }
+
+    populateFilters();
+    renderFocus();
+    renderTimeline();
+    renderGaps();
+    reconcileMetrics();
+    renderTasks();
+    ['search','priority','risk','status','project'].forEach(id => document.querySelector('#'+id).addEventListener(id === 'search' ? 'input' : 'change', renderTasks));
+  </script>
+</body>
+</html>
