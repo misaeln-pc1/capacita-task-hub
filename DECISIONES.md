@@ -1,5 +1,33 @@
 # DECISIONES
 
+## 2026-07-11 — Crear Dashboard Visual V0 en GitHub y publicar Sites después
+
+**Decisión:** construir primero una V0 portable dentro de `capacita-task-hub` y evaluar su publicación posterior en ChatGPT Sites como fase separada.
+
+**Arquitectura:**
+
+```text
+GitHub Issues / Planificador Atlas = fuente oficial
+Dashboard HTML en GitHub = capa visual snapshot
+ChatGPT Sites = publicación posterior, después de revisión y merge
+```
+
+**Motivo:** validar utilidad, diseño, campos y programación temporal sin crear API, credenciales, Actions ni una segunda base de tareas.
+
+**Alcance V0:**
+
+- HTML autocontenido;
+- indicadores, filtros, foco y timeline;
+- enlaces directos a issues;
+- snapshot fechado;
+- sin escritura ni sincronización automática.
+
+**Riesgo:** amarillo bajo. El snapshot puede quedar desactualizado y una URL Sites debe tratarse como publicación productiva.
+
+**Control:** GitHub mantiene versionado, diff, rollback y revisión. Sites no reemplazará GitHub ni el Project.
+
+---
+
 ## 2026-07-04 — Crear Sistema de Tareas Atlas
 
 **Decisión:** crear un sistema centralizado de tareas usando GitHub, sin depender de Google Tasks, Keep, To Do u otras herramientas dispersas.

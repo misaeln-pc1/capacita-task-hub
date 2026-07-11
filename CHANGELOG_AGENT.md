@@ -1,5 +1,121 @@
 # CHANGELOG_AGENT
 
+## 2026-07-11 — Dashboard Visual Planificador Atlas V0
+
+**Agente:** Atlas / ChatGPT.
+
+**Issue:** `capacita-task-hub#23`.
+
+**Rama:** `feature/task-hub-visual-dashboard-v0`.
+
+**Tipo de cambio:** feature visual interna + documentación, reversible, riesgo amarillo bajo.
+
+### Objetivo
+
+Crear una vista ejecutiva, portable y visual del Planificador Atlas en GitHub, preparada para publicación posterior en ChatGPT Sites sin reemplazar GitHub Issues ni el Project.
+
+### Archivos creados
+
+- `dashboard/index.html`.
+- `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md`.
+
+### Archivos actualizados
+
+- `README.md`.
+- `REPO_MAP.md`.
+- `TASK_STATUS.md`.
+- `DECISIONES.md`.
+- `REVIEW_REQUEST.md`.
+- `CHANGELOG_AGENT.md`.
+
+### Funcionalidad
+
+- cinco indicadores reconciliados;
+- foco inmediato de máximo tres tareas;
+- ruta crítica SOFOFA;
+- filtros por texto, prioridad, riesgo, estado y proyecto;
+- enlaces directos a issues;
+- panel de brechas de planificación;
+- diseño responsive;
+- snapshot fechado de 13 issues abiertos.
+
+### Decisiones
+
+- GitHub Issues y Planificador Atlas permanecen como fuente oficial.
+- V0 usa snapshot embebido; no usa API GitHub.
+- ChatGPT Sites queda como fase posterior separada.
+- Work puede ayudar a mantener el entregable, pero no reemplaza GitHub.
+- No se crea sincronización automática hasta validar el valor del dashboard.
+
+### Validación
+
+- HTML parseado con BeautifulSoup.
+- JavaScript embebido validado con `node --check`.
+- Conteos reconciliados:
+  - 13 tareas abiertas;
+  - 7 P1;
+  - 2 bloqueadas o vencidas;
+  - 11 sin fecha absoluta;
+  - 1 riesgo rojo.
+- Sin librerías, fuentes o recursos externos.
+- Sin solicitudes de red automáticas.
+- Intento de screenshot headless no concluyente por restricciones del contenedor Chromium; no se usa como evidencia visual.
+
+### Lectura obligatoria realizada
+
+Global:
+
+- `docs/LECTURA_OBLIGATORIA_GLOBAL.md`.
+- `docs/DICCIONARIO_OPERATIVO_CAPACITA.md`.
+- `docs/ESTANDAR_GLOBAL_PROYECTOS.md`.
+- `docs/ISSUE_TASK_ROUTING_STANDARD.md`.
+- `docs/CONTROL_OPERATING_MODEL.md`.
+- `docs/ESTANDAR_SDD_LIVIANO_CAPACITA.md`.
+- `capacita-ai-operating-system/PLATFORM_CAPABILITIES_REGISTRY.md`.
+
+Task Hub:
+
+- `README.md`.
+- `PROJECT_CONTEXT.md`.
+- `PROTOCOLO_TAREAS_ATLAS.md`.
+- `TASK_STATUS.md`.
+- `DECISIONES.md`.
+- `RIESGOS.md`.
+- `REPO_MAP.md`.
+- `AGENTS.md`.
+- `REVIEW_REQUEST.md`.
+- `CHANGELOG_AGENT.md`.
+
+### Feedback scan
+
+Feedback scan realizado: sin hallazgos relevantes.
+
+- `REVIEW_REQUEST.md`: existía desactualizado para PR #9 y fue reemplazado por la solicitud de revisión del dashboard.
+- `CHANGELOG_AGENT.md`: actualizado.
+- `TASK_STATUS.md`: actualizado.
+- `AGENT_FEEDBACK.md`: no existe.
+- `GEMINI.md`: no existe.
+
+### No se tocó
+
+- `main`.
+- GitHub Project y sus campos internos.
+- GitHub Actions, workflows o scripts.
+- APIs, credenciales o secretos.
+- Cloudflare, Sites, Zoho, Moodle, n8n, WhatsApp, SENCE o producción.
+- Datos personales o binarios.
+- Merge.
+
+### Pendientes
+
+- Abrir PR draft.
+- Revisión visual humana.
+- Corregir clasificaciones o fechas si el snapshot no representa el estado real.
+- Merge solo por Misael.
+- Publicación Sites en fase separada.
+
+---
+
 ## 2026-07-04 — Corrección PR #9: problema en repo, tarea en Task Hub
 
 **Agente:** Atlas / ChatGPT.

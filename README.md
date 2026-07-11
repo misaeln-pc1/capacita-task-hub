@@ -26,6 +26,31 @@ Repositorio privado para tareas personales, administrativas, transversales e inb
 2. **Capa 2 — Tiempo:** tamaño estimado, tiempo activo Misael, tiempo IA/agente, confianza e incertidumbre.
 3. **Capa 3 — Automatización:** qué puede hacer Atlas, Codex, Copilot, Jules, API o scripts, y qué requiere validación humana.
 
+## Dashboard visual V0
+
+La primera capa visual portable vive en:
+
+```text
+dashboard/index.html
+```
+
+Características:
+
+- snapshot fechado de issues abiertos;
+- indicadores de prioridad, riesgo, bloqueo y fechas;
+- foco inmediato;
+- timeline de hitos;
+- filtros y enlaces directos a GitHub;
+- HTML autocontenido, sin API, credenciales ni dependencias externas.
+
+Arquitectura, fuente y handoff futuro a Sites:
+
+```text
+docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md
+```
+
+GitHub Issues y el Project **Planificador Atlas** siguen siendo la fuente oficial. El dashboard es una capa de lectura y no modifica tareas.
+
 ## Documentos clave
 
 | Archivo | Uso |
@@ -36,10 +61,14 @@ Repositorio privado para tareas personales, administrativas, transversales e inb
 | `docs/CAMPOS_PLANIFICADOR_ATLAS.md` | Campos sugeridos del GitHub Project. |
 | `docs/FLUJO_TAREAS_REPOS_OPERATIVOS.md` | Cómo nacen tareas desde Moodle, Edge, Zoho, licitaciones, etc. |
 | `docs/CRITERIOS_TIEMPO_AUTOMATIZACION.md` | Escalas de esfuerzo, incertidumbre y automatización. |
+| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md` | Diseño, fuente, límites y publicación posterior del dashboard. |
 | `DECISIONES.md` | Decisiones base del sistema. |
 | `RIESGOS.md` | Riesgos y controles. |
 | `PROMPTS_BASE.md` | Frases y prompts operativos reutilizables. |
 
-## Estado inicial
+## Estado actual
 
-Bootstrap documental inicial. Pendiente configurar campos y vistas del **Planificador Atlas** en GitHub Projects y comenzar la primera carga controlada de tareas reales.
+- Sistema documental y workflow Auto-add operativos.
+- Tareas reales cargadas en `capacita-task-hub`.
+- Dashboard visual V0 en desarrollo mediante issue #23 y rama separada.
+- Publicación en Sites pendiente de revisión y merge de la V0.
