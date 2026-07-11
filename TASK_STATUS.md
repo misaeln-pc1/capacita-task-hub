@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-Sistema de Tareas Atlas con bootstrap documental mergeado y PR #9 mergeado.
+Sistema de Tareas Atlas operativo con tareas reales, workflow Auto-add validado y Dashboard Visual V0 en desarrollo mediante issue #23.
 
 ## Decisión vigente
 
@@ -12,6 +12,7 @@ El modelo operativo queda así:
 Repo operativo = radar de problemas, ideas, riesgos, decisiones e investigaciones.
 Task Hub = cola maestra de tareas ejecutables.
 Planificador Atlas = dashboard central de ejecución.
+Dashboard Visual V0 = capa portable de lectura basada en snapshot.
 ```
 
 Regla corta:
@@ -21,6 +22,17 @@ El problema vive en el repo.
 La tarea ejecutable vive en Task Hub.
 La evidencia técnica vive en el repo.
 ```
+
+## Dashboard Visual V0
+
+- Issue: `capacita-task-hub#23`.
+- Rama: `feature/task-hub-visual-dashboard-v0`.
+- Archivo principal: `dashboard/index.html`.
+- Arquitectura: `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md`.
+- Estado: implementación terminada en rama; pendiente revisión mediante PR.
+- Fuente: snapshot manual de issues abiertos al 2026-07-11.
+- Publicación Sites: pendiente de merge y revisión separada.
+- Sin API, credenciales, Actions, scripts ni producción.
 
 ## Avances confirmados
 
@@ -36,11 +48,15 @@ La evidencia técnica vive en el repo.
   - Tarea hija: `misaeln-pc1/capacita-task-hub#10`.
   - Tarea hija: `misaeln-pc1/capacita-task-hub#11`.
 - Tarea transversal abierta para propagar regla Atlas a repos activos: `capacita-task-hub#12`.
+- Dashboard Visual V0 creado en rama separada con filtros, indicadores, timeline y enlaces.
 
 ## Pendientes inmediatos
 
 | Pendiente | Responsable | Prioridad | Riesgo | Nota |
 |---|---|---:|---|---|
+| Revisar y mergear Dashboard Visual V0 | Misael / Review | P1 | Amarillo bajo | Validar diseño, datos snapshot y alcance antes de Sites. |
+| Normalizar fecha de tarea `#5` | Misael / Atlas | P1 | Amarillo | Sustituir “Hoy” por fecha absoluta. |
+| Preparar ruta crítica SOFOFA | Misael / Atlas | P1 | Rojo | Hito oficial 22/07/2026 14:00. |
 | Ejecutar tarea `#10` | Misael / Atlas | P1 | Amarillo | Levantar flujo actual de recuperación de clave Moodle sin tocar configuración real. |
 | Ejecutar tarea `#11` | Misael / Atlas | P1 | Amarillo | Validar impacto SENCE/CUS antes de cualquier cambio de autenticación. |
 | Mantener actualizado issue padre Moodle `#130` | Atlas / Misael | P1 | Amarillo | Debe listar estado de tareas derivadas y evidencia. |
@@ -62,23 +78,25 @@ La evidencia técnica vive en el repo.
 
 ## Próximo paso recomendado
 
-1. Ejecutar `capacita-task-hub#10`.
-2. Comentar evidencia en `capacita-learnops-moodle#130`.
-3. Ejecutar `capacita-task-hub#11`.
-4. Actualizar el issue padre Moodle con resultado y decisión de bloqueo/avance.
-5. Revisar `capacita-task-hub#12` para ordenar PRs de propagación Atlas.
+1. Revisar el PR del Dashboard Visual V0.
+2. Corregir observaciones visuales o de clasificación.
+3. Mergear solo con aprobación humana.
+4. Publicar posteriormente en Sites como piloto separado.
+5. Mantener GitHub Issues como fuente oficial y el HTML como snapshot.
 
 ## Bloqueos
 
 - El conector GitHub de ChatGPT no permite editar campos internos de GitHub Projects v2.
 - La clasificación debe quedar en el cuerpo del issue y/o labels hasta que se use CLI/API local o automatización aprobada.
+- La V0 no se actualiza automáticamente; el snapshot requiere revisión manual.
+- La publicación en Sites no se ejecuta desde este PR.
 
 ## No tocar todavía
 
 - No crear automatizaciones por GitHub Actions.
-- No ejecutar scripts.
+- No ejecutar scripts de sincronización.
 - No conectar APIs.
 - No modificar Moodle producción.
 - No tocar SENCE/CUS real.
 - No usar credenciales.
-- No cargar backlog completo hasta cerrar la prueba padre/hijas de Moodle.
+- No publicar en Sites antes de revisar acceso y contenido.
