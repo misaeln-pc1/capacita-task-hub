@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildSnapshot } from "../snapshot-lib.mjs";
-const now=new Date("2026-07-12T12:00:00-04:00");
+import { buildSnapshot, parseDue, zonedDateTimeToUtcIso } from "../snapshot-lib.mjs";
+const now=new Date("2026-07-12T16:00:00.000Z");
 const issues=[
  {number:26,state:"closed",title:"[NCh 2728][Tarea] Cerrada",body:"## Fecha objetivo\n12 de julio de 2026",html_url:"https://github.com/misaeln-pc1/capacita-task-hub/issues/26"},
  {number:21,state:"open",title:"[HITO] Entregar licitación SOFOFA",body:"## Fecha límite\n22/07/2026 14:00\n\n- **Prioridad:** P1\n- **Riesgo:** Rojo",html_url:"https://github.com/misaeln-pc1/capacita-task-hub/issues/21"},
@@ -9,7 +9,9 @@ const issues=[
  {number:40,state:"open",title:"Tarea inconsistente",body:"Estado: Cerrada",html_url:"https://github.com/misaeln-pc1/capacita-task-hub/issues/40"},
 ];
 test("excluye issues cerradas y conserva abiertas",()=>{const s=buildSnapshot(issues,{now});assert.equal(s.tasks.some((t)=>t.id===26),false);assert.equal(s.tasks.some((t)=>t.id===21),true)});
-test("conserva fecha original para arrastre",()=>{const s=buildSnapshot(issues,{now});const t=s.tasks.find((x)=>x.id===15);assert.equal(t.due,"2026-07-10T12:00:00-04:00");assert.ok(t.due.slice(0,10)<s.today)});
-test("genera corte en America/Santiago",()=>{const s=buildSnapshot(issues,{now});assert.equal(s.timezone,"America/Santiago");assert.equal(s.today,"2026-07-12");assert.match(s.generated_at,/^2026-07-12T/)});
+test("conserva fecha calendario local para arrastre",()=>{const s=buildSnapshot(issues,{now});const t=s.tasks.find((x)=>x.id===15);assert.equal(t.due_date,"2026-07-10");assert.equal(t.due,"2026-07-10T16:00:00.000Z");assert.ok(t.due_date<s.today)});
+test("genera corte absoluto y fecha local en America/Santiago",()=>{const s=buildSnapshot(issues,{now});assert.equal(s.timezone,"America/Santiago");assert.equal(s.today,"2026-07-12");assert.equal(s.generated_at,"2026-07-12T16:00:00.000Z");assert.match(s.generated_local,/^2026-07-12T12:00:00$/)});
+test("aplica UTC−4 en invierno y UTC−3 en verano",()=>{assert.equal(zonedDateTimeToUtcIso(2026,7,22,14,0),"2026-07-22T18:00:00.000Z");assert.equal(zonedDateTimeToUtcIso(2026,1,22,14,0),"2026-01-22T17:00:00.000Z")});
+test("preserva fecha local aunque la hora cruce a UTC del día siguiente",()=>{const d=parseDue("## Fecha objetivo\n22/01/2026 23:30");assert.equal(d.date,"2026-01-22");assert.equal(d.instant,"2026-01-23T02:30:00.000Z")});
 test("open/closed manda y un estado incompatible queda marcado",()=>{const s=buildSnapshot(issues,{now});const t=s.tasks.find((x)=>x.id===40);assert.ok(t);assert.equal(t.status,"Cerrada");assert.equal(t.operational_state_valid,false)});
 test("fallo sin token bloquea el generador",async()=>{const {spawnSync}=await import("node:child_process");const {fileURLToPath}=await import("node:url");const script=fileURLToPath(new URL("../generate-snapshot.mjs",import.meta.url));const r=spawnSync(process.execPath,[script],{env:{}});assert.notEqual(r.status,0);assert.match(r.stderr.toString(),/falta GITHUB_TOKEN/)});
