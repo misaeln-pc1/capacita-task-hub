@@ -2,61 +2,81 @@
 
 ## Causa raíz
 
-La V4 incorporaba las tareas directamente en \`dashboard/index.html\`. Cerrar una issue en GitHub no modificaba ese HTML; por eso la issue cerrada #26 siguió visible en el Site.
+La V4 incorporaba las tareas directamente en `dashboard/index.html`. Cerrar una issue en GitHub no modificaba ese HTML; por eso la issue cerrada #26 siguió visible en el Site.
 
-## Arquitectura elegida
+## Arquitectura vigente
 
-    GitHub Issues (state=open)
-      -> generate-snapshot.mjs
-      -> snapshot.json + snapshot.js
-      -> validate-snapshot.mjs
-      -> build/checkpoint de Sites
+```text
+GitHub Issues (state=open)
+  -> generate-snapshot.mjs
+  -> snapshot.json + snapshot.js
+  -> validate-snapshot.mjs
+  -> revisión humana
+  -> checkpoint manual de Sites
+```
 
-El navegador consume únicamente \`snapshot.js\`; no consulta GitHub ni recibe credenciales.
+El navegador consume únicamente `snapshot.js`; no consulta GitHub ni recibe credenciales.
 
 ## Precedencia del estado
 
 El gate implementa la decisión mergeada en PR #34:
 
-    Estado real open/closed de la issue
-      -> Estado operativo escrito en el cuerpo
-      -> Planificador Atlas / Projects v2 como espejo visual
-      -> Dashboard generado desde las issues
+```text
+Estado real open/closed de la issue
+  -> Estado operativo escrito en el cuerpo
+  -> Planificador Atlas / Projects v2 como espejo visual
+  -> Dashboard generado desde las issues
+```
 
-- La consulta trae únicamente issues \`open\`; las cerradas no entran al snapshot.
-- El campo \`Estado:\` del cuerpo clasifica la tarea abierta.
-- Los estados abiertos admitidos son \`Inbox\`, \`Hoy\`, \`Próxima\`, \`En curso\` y \`Bloqueada\`.
-- Una issue abierta con \`Estado: Cerrada\` u otro valor incompatible bloquea la validación y el despliegue.
+- La consulta trae únicamente issues `open`; las cerradas no entran al snapshot.
+- El campo `Estado:` del cuerpo clasifica la tarea abierta.
+- Los estados abiertos admitidos son `Inbox`, `Hoy`, `Próxima`, `En curso` y `Bloqueada`.
+- Una issue abierta con `Estado: Cerrada` u otro valor incompatible bloquea la validación.
 - El dashboard no consulta ni usa Projects v2 como fuente de estado.
 
-## Ejecución obligatoria
+## Zona horaria
 
-Antes de preparar cualquier checkpoint:
+- `generated_at` se guarda como timestamp absoluto UTC ISO 8601 con `Z`.
+- `generated_local` y `today` se calculan con `America/Santiago`.
+- Cada fecha objetivo conserva un campo `due_date` de calendario local.
+- El instante `due` se convierte dinámicamente desde `America/Santiago`; no existe un offset fijo `-04:00` o `-03:00`.
+- Las pruebas cubren invierno UTC−4, verano UTC−3 y una hora local que cruza al día UTC siguiente.
 
-    GITHUB_TOKEN=<token efímero de solo lectura> node dashboard/predeploy.mjs
+## Ejecución del gate
 
-Si la consulta o validación falla, el comando retorna código distinto de cero y el despliegue debe detenerse. El generador usa archivos temporales y no reemplaza el último snapshot válido ante errores.
+El comando obligatorio es:
 
-## Manejo de secretos
+```bash
+node dashboard/predeploy.mjs
+```
 
-- \`GITHUB_TOKEN\` se lee solo desde el entorno del proceso.
-- Alcance mínimo: lectura de Issues y metadata del repositorio privado.
-- No se escribe en HTML, JavaScript generado, logs, archivos ni Git.
-- No se creó ni configuró ningún secreto, workflow, Action o API.
+El proceso necesita una variable `GITHUB_TOKEN` con acceso de lectura a Issues y metadata del repositorio privado.
 
-## Activación pendiente
+## Decisión sobre autenticación
 
-Para hacer el gate imposible de omitir se requiere una acción adicional sujeta a aprobación:
+ChatGPT Sites no confirmó que sus secretos de ejecución estén disponibles durante el build. Por tanto, la automatización no dependerá únicamente de Sites y no se debe crear un PAT personal para esta ruta.
 
-1. integrar \`node dashboard/predeploy.mjs\` al comando de checkpoint/build de Sites y configurar el token de solo lectura como secreto del entorno; o
-2. crear un GitHub Actions manual de publicación con el mismo secreto.
+La alternativa autorizada se prepara por separado en `capacita-task-hub#35`:
 
-Hasta autorizar una de ellas, Work debe ejecutar el comando antes de cada despliegue y detenerse si falla.
+- GitHub Action manual con `workflow_dispatch`;
+- `GITHUB_TOKEN` automático de GitHub;
+- permisos mínimos explícitos;
+- regeneración y validación;
+- rama automática y PR draft para revisar el snapshot;
+- sin commit directo en `main`;
+- sin despliegue automático de Sites.
+
+## Fallo seguro
+
+- Error GitHub, token ausente, estado operativo inválido o snapshot fuera de contrato: proceso termina con código distinto de cero.
+- El generador usa archivos temporales y no reemplaza el último snapshot válido ante errores.
+- El Site vigente no se modifica desde este PR.
 
 ## Límites vigentes
 
 - Snapshot estático; no hay sincronización en vivo.
 - GitHub continúa como fuente oficial.
-- GitHub Project v2 todavía no forma parte de la consulta.
+- GitHub Project v2 no forma parte de la consulta.
 - La clasificación depende de campos legibles en el cuerpo de cada issue; valores faltantes usan defaults conservadores.
+- El workflow manual se revisa en rama y PR separados.
 - No se despliega desde este PR.
