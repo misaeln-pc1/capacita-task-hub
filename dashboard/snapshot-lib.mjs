@@ -1,5 +1,6 @@
 const MONTHS = { enero:1, febrero:2, marzo:3, abril:4, mayo:5, junio:6, julio:7, agosto:8, septiembre:9, octubre:10, noviembre:11, diciembre:12 };
 export const TIME_ZONE = "America/Santiago";
+export const OPEN_OPERATIONAL_STATES = ["Inbox","Hoy","Próxima","En curso","Bloqueada"];
 
 export function zonedParts(date = new Date(), timeZone = TIME_ZONE) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -68,12 +69,15 @@ export function normalizeIssue(issue) {
   const priority = firstMatch(body,[/\*\*Prioridad[^*]*:\*\*\s*(P[123])/i,/Prioridad\s*:\s*(P[123])/i]) ?? "P2";
   const riskRaw = firstMatch(body,[/\*\*Riesgo[^*]*:\*\*\s*(Rojo|Amarillo|Verde)/i,/Riesgo\s*:\s*(Rojo|Amarillo|Verde)/i,/Semáforo[\s\S]{0,80}\b(Rojo|Amarillo|Verde)\b/i]) ?? "Amarillo";
   const risk = riskRaw.charAt(0).toUpperCase()+riskRaw.slice(1).toLowerCase();
-  const status = firstMatch(body,[/\*\*Estado[^*]*:\*\*\s*([^\n—-]+)/i,/Estado\s*:\s*([^\n—-]+)/i]) ?? "Inbox";
+  const statusRaw = firstMatch(body,[/\*\*Estado[^*]*:\*\*\s*([^\n—-]+)/i,/Estado\s*:\s*([^\n—-]+)/i]) ?? "Inbox";
+  const statusKey=statusRaw.replace(/[.*_]/g,"").trim().toLowerCase();
+  const statusMap=new Map(OPEN_OPERATIONAL_STATES.map((value)=>[value.toLowerCase(),value]));
+  const status=statusMap.get(statusKey) ?? statusRaw.trim();
   const next = section(body,"Siguiente acción") || section(body,"Acción siguiente") || section(body,"Siguiente paso") || "Revisar la issue y definir la siguiente acción.";
   const due = parseDue(body);
   return {
     id:issue.number, p:projectId(issue), title:issue.title.replace(/^(?:\[[^\]]+\]\s*)+/,"").trim(),
-    priority, risk, status, due,
+    priority, risk, status, operational_state_valid:OPEN_OPERATIONAL_STATES.includes(status), due,
     label:due ? new Intl.DateTimeFormat("es-CL",{timeZone:TIME_ZONE,day:"2-digit",month:"short",year:"numeric"}).format(new Date(due)) : "Sin fecha",
     next:next.replace(/\s+/g," ").trim(), url:issue.html_url,
   };
