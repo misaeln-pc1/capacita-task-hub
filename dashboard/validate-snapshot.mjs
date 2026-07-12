@@ -9,6 +9,7 @@ if(snapshot.status!=="current")errors.push("status no es current");
 if(snapshot.timezone!=="America/Santiago")errors.push("timezone incorrecta");
 if(!Array.isArray(snapshot.tasks))errors.push("tasks no es una lista");
 if(snapshot.tasks?.some((task)=>task.id===26))errors.push("regresión: issue cerrada #26 presente");
+if(snapshot.tasks?.some((task)=>task.operational_state_valid!==true))errors.push("issue abierta con Estado operativo inválido; corregir el cuerpo antes de desplegar");
 if(snapshot.tasks?.some((task)=>!task.url?.startsWith("https://github.com/misaeln-pc1/capacita-task-hub/issues/")))errors.push("enlace de issue inválido");
 const generated=new Date(snapshot.generated_at+"-04:00");
 const ageMinutes=(Date.now()-generated.getTime())/60000;
