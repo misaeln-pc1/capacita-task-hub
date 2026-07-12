@@ -1,5 +1,34 @@
 # DECISIONES
 
+## 2026-07-12 — La issue de Task Hub es la fuente oficial del estado operativo
+
+**Decisión:** usar la GitHub Issue de `capacita-task-hub` como fuente oficial del estado de cada tarea ejecutable.
+
+**Precedencia:**
+
+```text
+Estado real open/closed de la issue
+→ Estado operativo escrito en el cuerpo de la issue
+→ Planificador Atlas / Projects v2 como espejo visual
+→ Dashboard generado desde las issues
+```
+
+**Regla operativa:**
+
+- Mientras una issue esté abierta, el campo `Estado:` del cuerpo debe usar `Inbox`, `Hoy`, `Próxima`, `En curso` o `Bloqueada`.
+- Al completar una tarea se debe registrar evidencia, actualizar `Estado: Cerrada` y cerrar la issue como `completed`.
+- Al reabrir una tarea se debe abrir la issue y asignarle nuevamente un estado operativo abierto.
+- Nunca se debe cambiar únicamente el campo del Project dejando desactualizada la issue.
+- Si el conector no puede editar Projects v2, se informa `pendiente de clasificación manual en Planificador Atlas`; la issue sigue siendo válida.
+
+**Motivo:** el dashboard operativo lee las issues de Task Hub. Mantener el estado en la issue evita discrepancias entre el cuerpo, el Project y el snapshot publicado, sin agregar una integración más compleja con Projects v2.
+
+**Impacto:** esta decisión habilita la actualización coherente del dashboard antes de cada despliegue y conserva Projects v2 como capa de organización visual.
+
+**No implica:** activar APIs, crear tokens, secretos, Actions, workflows ni sincronización en vivo.
+
+---
+
 ## 2026-07-11 — Crear Dashboard Visual V0 en GitHub y publicar Sites después
 
 **Decisión:** construir primero una V0 portable dentro de `capacita-task-hub` y evaluar su publicación posterior en ChatGPT Sites como fase separada.
