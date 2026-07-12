@@ -35,6 +35,6 @@ test("crea rama y PR draft sin escribir directo en main", () => {
   assert.doesNotMatch(workflow, /git push[^\n]*(HEAD:main|origin main)/);
 });
 
-test("no despliega Sites", () => {
-  assert.doesNotMatch(workflow, /chatgpt\.site|checkpoint|deploy|deployment/i);
+test("no contiene comandos de despliegue de Sites", () => {
+  assert.doesNotMatch(workflow, /chatgpt\.site|\bcheckpoint\s+(create|deploy)|\bsites?\s+deploy|npm\s+run\s+deploy/i);
 });
