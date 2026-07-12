@@ -14,6 +14,21 @@ La V4 incorporaba las tareas directamente en \`dashboard/index.html\`. Cerrar un
 
 El navegador consume únicamente \`snapshot.js\`; no consulta GitHub ni recibe credenciales.
 
+## Precedencia del estado
+
+El gate implementa la decisión mergeada en PR #34:
+
+    Estado real open/closed de la issue
+      -> Estado operativo escrito en el cuerpo
+      -> Planificador Atlas / Projects v2 como espejo visual
+      -> Dashboard generado desde las issues
+
+- La consulta trae únicamente issues \`open\`; las cerradas no entran al snapshot.
+- El campo \`Estado:\` del cuerpo clasifica la tarea abierta.
+- Los estados abiertos admitidos son \`Inbox\`, \`Hoy\`, \`Próxima\`, \`En curso\` y \`Bloqueada\`.
+- Una issue abierta con \`Estado: Cerrada\` u otro valor incompatible bloquea la validación y el despliegue.
+- El dashboard no consulta ni usa Projects v2 como fuente de estado.
+
 ## Ejecución obligatoria
 
 Antes de preparar cualquier checkpoint:
