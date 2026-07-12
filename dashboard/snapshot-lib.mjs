@@ -17,6 +17,22 @@ export function zonedDay(date = new Date(), timeZone = TIME_ZONE) {
   const p = zonedParts(date, timeZone);
   return p.year+"-"+p.month+"-"+p.day;
 }
+export function zonedDateTimeToUtcIso(year, month, day, hour = 12, minute = 0, timeZone = TIME_ZONE) {
+  const target = Date.UTC(Number(year),Number(month)-1,Number(day),Number(hour),Number(minute),0);
+  let candidate = new Date(target);
+  for (let attempt=0;attempt<4;attempt+=1) {
+    const p = zonedParts(candidate,timeZone);
+    const represented = Date.UTC(Number(p.year),Number(p.month)-1,Number(p.day),Number(p.hour),Number(p.minute),Number(p.second));
+    const delta = target-represented;
+    if (delta===0) return candidate.toISOString();
+    candidate = new Date(candidate.getTime()+delta);
+  }
+  const p = zonedParts(candidate,timeZone);
+  const matches = Number(p.year)===Number(year) && Number(p.month)===Number(month) && Number(p.day)===Number(day)
+    && Number(p.hour)===Number(hour) && Number(p.minute)===Number(minute);
+  if (!matches) throw new Error("Fecha/hora local inexistente o ambigua en "+timeZone);
+  return candidate.toISOString();
+}
 function section(body, heading) {
   const pattern = new RegExp("##\\s+"+heading+"\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)", "i");
   return body.match(pattern)?.[1]?.trim() ?? "";
@@ -28,14 +44,18 @@ function firstMatch(text, patterns) {
   }
   return null;
 }
+function dueValue(year,month,day,hour=12,minute=0) {
+  const date = String(year)+"-"+String(month).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+  return { date, instant:zonedDateTimeToUtcIso(year,month,day,hour,minute) };
+}
 export function parseDue(body = "") {
   const focused = [section(body,"Fecha objetivo"),section(body,"Fecha límite"),section(body,"Fecha"),section(body,"Fechas")].filter(Boolean).join("\n") || body;
   const iso = focused.match(/\b(20\d{2})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
-  if (iso) return iso[1]+"-"+iso[2]+"-"+iso[3]+(iso[4] ? "T"+iso[4]+":"+iso[5]+":00-04:00" : "T12:00:00-04:00");
-  const slash = focused.match(/\b(\d{1,2})[/-](\d{1,2})[/-](20\d{2})(?:[^\d]+(\d{1,2}):(\d{2}))?/);
-  if (slash) return slash[3]+"-"+String(slash[2]).padStart(2,"0")+"-"+String(slash[1]).padStart(2,"0")+(slash[4] ? "T"+String(slash[4]).padStart(2,"0")+":"+slash[5]+":00-04:00" : "T12:00:00-04:00");
+  if (iso) return dueValue(iso[1],iso[2],iso[3],iso[4] ?? 12,iso[5] ?? 0);
+  const slash = focused.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](20\d{2})(?:[^\d]+(\d{1,2}):(\d{2}))?/);
+  if (slash) return dueValue(slash[3],slash[2],slash[1],slash[4] ?? 12,slash[5] ?? 0);
   const words = focused.toLowerCase().match(/\b(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s+de\s+(20\d{2})/);
-  if (words) return words[3]+"-"+String(MONTHS[words[2]]).padStart(2,"0")+"-"+String(words[1]).padStart(2,"0")+"T12:00:00-04:00";
+  if (words) return dueValue(words[3],MONTHS[words[2]],words[1]);
   return null;
 }
 export function projectId(issue) {
@@ -74,10 +94,12 @@ export function normalizeIssue(issue) {
   const statusMap=new Map(OPEN_OPERATIONAL_STATES.map((value)=>[value.toLowerCase(),value]));
   const status=statusMap.get(statusKey) ?? statusRaw.trim();
   const next = section(body,"Siguiente acción") || section(body,"Acción siguiente") || section(body,"Siguiente paso") || "Revisar la issue y definir la siguiente acción.";
-  const due = parseDue(body);
+  const dueInfo = parseDue(body);
+  const due = dueInfo?.instant ?? null;
+  const due_date = dueInfo?.date ?? null;
   return {
     id:issue.number, p:projectId(issue), title:issue.title.replace(/^(?:\[[^\]]+\]\s*)+/,"").trim(),
-    priority, risk, status, operational_state_valid:OPEN_OPERATIONAL_STATES.includes(status), due,
+    priority, risk, status, operational_state_valid:OPEN_OPERATIONAL_STATES.includes(status), due, due_date,
     label:due ? new Intl.DateTimeFormat("es-CL",{timeZone:TIME_ZONE,day:"2-digit",month:"short",year:"numeric"}).format(new Date(due)) : "Sin fecha",
     next:next.replace(/\s+/g," ").trim(), url:issue.html_url,
   };
@@ -85,8 +107,8 @@ export function normalizeIssue(issue) {
 export function buildSnapshot(issues,{now=new Date(),source="github-api"}={}) {
   const openIssues = issues.filter((issue) => issue.state === "open" && !issue.pull_request);
   return {
-    schema_version:1,status:"current",source,repository:"misaeln-pc1/capacita-task-hub",
-    timezone:TIME_ZONE,generated_at:zonedIso(now),today:zonedDay(now),
+    schema_version:2,status:"current",source,repository:"misaeln-pc1/capacita-task-hub",
+    timezone:TIME_ZONE,generated_at:now.toISOString(),generated_local:zonedIso(now),today:zonedDay(now),
     tasks:openIssues.map(normalizeIssue).sort((a,b)=>a.id-b.id),
   };
 }
