@@ -10,3 +10,4 @@ test("contrato de arrastre V4 permanece",()=>{assert.match(html,/function isOver
 test("fecha de corte y aviso de obsolescencia existen",()=>{assert.match(html,/id="snapshot-at"/);assert.match(html,/Datos no actualizados/);assert.match(html,/ageHours>6/)});
 test("controles principales permanecen",()=>{for(const id of ["tab-chrono","tab-atlas","milestone-weeks","load-weeks","search","project-select","undated-open","drawer-wrap","overlay"])assert.match(html,new RegExp('id="'+id+'"'))});
 test("frontend no contiene credenciales ni consulta GitHub",()=>{assert.doesNotMatch(html,/GITHUB_TOKEN|api\.github\.com|Authorization\s*:/i);assert.match(html,/src="\.\/snapshot\.js"/)});
+test("frontend y snapshot no fijan offset de Santiago",()=>{assert.doesNotMatch(html,/-04:00|-03:00/);assert.match(snapshot.generated_at,/Z$/);for(const task of snapshot.tasks.filter((item)=>item.due)){assert.match(task.due,/Z$/);assert.match(task.due_date,/^\d{4}-\d{2}-\d{2}$/)}});
