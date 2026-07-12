@@ -286,3 +286,80 @@ Incidente / bloqueo
 - Siguiente acción de análisis indicada.
 - Tareas derivadas listadas si existen.
 - Estado actualizado cuando cambien las tareas hijas.
+
+## Sincronización del estado operativo
+
+La GitHub Issue de `capacita-task-hub` es la fuente oficial del estado de cada tarea ejecutable.
+
+### Precedencia
+
+1. El estado real de GitHub (`open` o `closed`) determina si la tarea sigue pendiente.
+2. Mientras la issue esté abierta, el campo `Estado:` de su cuerpo determina el estado operativo.
+3. Los campos de **Planificador Atlas / GitHub Projects v2** son un espejo visual.
+4. El dashboard debe leer la issue y no inferir como vigente un valor distinto guardado solo en el Project.
+
+### Estados operativos abiertos
+
+Valores admitidos:
+
+```text
+Inbox
+Hoy
+Próxima
+En curso
+Bloqueada
+```
+
+Toda instrucción de Misael que cambie una tarea entre estos estados debe modificar primero el campo `Estado:` del cuerpo de la issue.
+
+Ejemplo:
+
+```markdown
+## Clasificación Atlas
+
+- Estado: En curso
+- Proyecto: Gestión de Calidad NCh 2728
+- Tipo: Hito / tarea ejecutiva
+- Prioridad: P1
+- Riesgo: Amarillo
+- Responsable: Misael
+```
+
+### Cierre
+
+Cuando Misael indique que una tarea está completada:
+
+1. comprobar o registrar la evidencia disponible;
+2. actualizar el cuerpo a `Estado: Cerrada`;
+3. agregar un comentario de cierre cuando aporte trazabilidad;
+4. cerrar la issue con `state_reason = completed`.
+
+La issue cerrada deja de formar parte de los pendientes aunque un snapshot anterior todavía la muestre hasta el próximo despliegue.
+
+### Reapertura
+
+Cuando una tarea deba reabrirse:
+
+1. reabrir la issue;
+2. reemplazar `Estado: Cerrada` por un estado operativo abierto;
+3. registrar el motivo de reapertura y la siguiente acción.
+
+### Planificador Atlas / Projects v2
+
+Nunca se debe cambiar únicamente el Project dejando desactualizada la issue.
+
+- Si el conector permite actualizar Projects v2, el cambio puede reflejarse después de actualizar la issue.
+- Si el conector no permite editar sus campos internos, la issue sigue siendo válida y se debe informar: `pendiente de clasificación manual en Planificador Atlas`.
+- La imposibilidad de editar Projects v2 no bloquea el cambio de estado en Task Hub ni la actualización del dashboard basado en issues.
+
+### Regla para agentes
+
+```text
+Instrucción de Misael
+→ actualizar primero la issue de Task Hub
+→ registrar evidencia si corresponde
+→ reflejar después en Planificador Atlas cuando sea posible
+→ dashboard lee la issue actualizada
+```
+
+No cerrar una tarea solo en el Project. No cambiar el estado solo en el texto sin aplicar también `open/closed` cuando corresponda.
