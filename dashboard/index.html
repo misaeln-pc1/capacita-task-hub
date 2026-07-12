@@ -54,10 +54,10 @@ const projects=[
 {id:'atlas',name:'Task Hub / Dashboard',deadline:'Publicación V3'}];
 const tasks=SNAPSHOT.tasks;
 const milestones=[
-{id:'m1',date:'2026-07-15T12:00:00-04:00',title:'Inicio curso Excel',project:'Operación de cursos',taskId:22},
-{id:'m2',date:'2026-07-22T14:00:00-04:00',title:'Entrega SOFOFA · 14:00',project:'OTIC SOFOFA',taskId:21},
-{id:'m3',date:'2026-07-24T12:00:00-04:00',title:'Preauditoría',project:'NCh 2728',taskId:25},
-{id:'m4',date:'2026-08-11T12:00:00-04:00',title:'Auditoría final',project:'NCh 2728',taskId:24}];
+{id:'m1',date:'2026-07-15',title:'Inicio curso Excel',project:'Operación de cursos',taskId:22},
+{id:'m2',date:'2026-07-22',title:'Entrega SOFOFA · 14:00',project:'OTIC SOFOFA',taskId:21},
+{id:'m3',date:'2026-07-24',title:'Preauditoría',project:'NCh 2728',taskId:25},
+{id:'m4',date:'2026-08-11',title:'Auditoría final',project:'NCh 2728',taskId:24}];
 const atlasRoute=[
 {taskId:15,why:'Tarea vencida no cerrada. Debe cerrarse, reprogramarse o confirmarse antes de seguir acumulando atraso.',protects:'Ruta SOFOFA',mode:'Arrastre pendiente'},
 {taskId:26,why:'Dependencia obligatoria de la preauditoría y la auditoría final.',protects:'Preauditoría · 24 jul',mode:'Ejecutar primero'},
@@ -67,18 +67,20 @@ const atlasRoute=[
 {taskId:24,why:'Hito final protegido por todas las tareas previas de calidad.',protects:'Auditoría · 11 ago',mode:'Hito final'}];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const riskClass=r=>r==='Rojo'?'red':r==='Amarillo'?'amber':'green';
-const dayFmt=v=>new Intl.DateTimeFormat('es-CL',{timeZone:TZ,weekday:'long',day:'2-digit',month:'short'}).format(new Date(v));
-function isoWeek(value){const d=new Date(value+'T12:00:00-04:00');const u=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));u.setUTCDate(u.getUTCDate()+4-(u.getUTCDay()||7));const y=new Date(Date.UTC(u.getUTCFullYear(),0,1));return Math.ceil((((u-y)/86400000)+1)/7)}
-function mondayOf(value){const d=new Date(value+'T12:00:00-04:00'),day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d}
+const calendarDate=value=>new Date(value.slice(0,10)+'T12:00:00.000Z');
+const dayFmt=v=>new Intl.DateTimeFormat('es-CL',{timeZone:v.length===10?'UTC':TZ,weekday:'long',day:'2-digit',month:'short'}).format(v.length===10?calendarDate(v):new Date(v));
+function isoWeek(value){const u=calendarDate(value);u.setUTCDate(u.getUTCDate()+4-(u.getUTCDay()||7));const y=new Date(Date.UTC(u.getUTCFullYear(),0,1));return Math.ceil((((u-y)/86400000)+1)/7)}
+function mondayOf(value){const d=calendarDate(value),day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);return d}
 function keyDate(d){return d.toISOString().slice(0,10)}
-function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
-function weekRange(m){const e=addDays(m,6),f=x=>new Intl.DateTimeFormat('es-CL',{timeZone:TZ,day:'2-digit',month:'short'}).format(x);return f(m)+'–'+f(e)}
-function isOverdue(t){return Boolean(t.due&&t.due.slice(0,10)<TODAY)}
-function overdueDays(t){return Math.max(1,Math.floor((new Date(TODAY+'T12:00:00-04:00')-new Date(t.due))/86400000))}
+function addDays(d,n){const x=new Date(d);x.setUTCDate(x.getUTCDate()+n);return x}
+function weekRange(m){const e=addDays(m,6),f=x=>new Intl.DateTimeFormat('es-CL',{timeZone:'UTC',day:'2-digit',month:'short'}).format(x);return f(m)+'–'+f(e)}
+function taskDate(t){return t.due_date||t.due?.slice(0,10)||null}
+function isOverdue(t){const d=taskDate(t);return Boolean(d&&d<TODAY)}
+function overdueDays(t){const d=taskDate(t);return Math.max(1,Math.floor((Date.parse(TODAY+'T00:00:00.000Z')-Date.parse(d+'T00:00:00.000Z'))/86400000))}
 function overdueLabel(t){const n=overdueDays(t);return 'Vencida hace '+n+' día'+(n===1?'':'s')}
 const start=mondayOf(TODAY),last=mondayOf('2026-08-11'),weeks=[];for(let d=new Date(start);d<=last;d=addDays(d,7))weeks.push({m:new Date(d),key:keyDate(d),n:isoWeek(keyDate(d))});
-function renderMilestones(){document.querySelector('#milestone-weeks').innerHTML=weeks.map((w,i)=>{const ms=milestones.filter(m=>tasks.some(t=>t.id===m.taskId)&&keyDate(mondayOf(m.date.slice(0,10)))===w.key);return `<article class="week ${i===0?'current':''}" data-week="${w.key}"><div class="week-label">S${w.n}${i===0?' · actual':''}</div><div class="week-range">${weekRange(w.m)}</div>${i===0?'<span class="today-pill">Hoy · '+new Intl.DateTimeFormat('es-CL',{timeZone:TZ,day:'2-digit',month:'short'}).format(new Date(TODAY+'T12:00:00-04:00'))+'</span>':''}${ms.map(m=>`<div class="milestone" data-milestone="${m.id}"><strong>${esc(m.title)}</strong><span>${esc(m.project)} · ${dayFmt(m.date)}</span></div>`).join('')}</article>`}).join('')}
-function datedInWeek(w){const current=w.key===weeks[0].key;return tasks.filter(t=>t.due&&((current&&isOverdue(t))||(t.due.slice(0,10)>=TODAY&&keyDate(mondayOf(t.due.slice(0,10)))===w.key)))}
+function renderMilestones(){document.querySelector('#milestone-weeks').innerHTML=weeks.map((w,i)=>{const ms=milestones.filter(m=>tasks.some(t=>t.id===m.taskId)&&keyDate(mondayOf(m.date))===w.key);return `<article class="week ${i===0?'current':''}" data-week="${w.key}"><div class="week-label">S${w.n}${i===0?' · actual':''}</div><div class="week-range">${weekRange(w.m)}</div>${i===0?'<span class="today-pill">Hoy · '+new Intl.DateTimeFormat('es-CL',{timeZone:'UTC',day:'2-digit',month:'short'}).format(calendarDate(TODAY))+'</span>':''}${ms.map(m=>`<div class="milestone" data-milestone="${m.id}"><strong>${esc(m.title)}</strong><span>${esc(m.project)} · ${dayFmt(m.date)}</span></div>`).join('')}</article>`}).join('')}
+function datedInWeek(w){const current=w.key===weeks[0].key;return tasks.filter(t=>{const d=taskDate(t);return d&&((current&&isOverdue(t))||(d>=TODAY&&keyDate(mondayOf(d))===w.key))})}
 function renderLoad(){document.querySelector('#load-weeks').innerHTML=weeks.map(w=>{const list=datedInWeek(w),n=list.length,overdue=list.filter(isOverdue).length,level=n>=5?'high':n>=3?'medium':'low',width=Math.min(100,Math.max(n?25:5,n*18));return `<article class="load-week ${level}" data-load-week="${w.key}"><div class="load-top"><strong>S${w.n} · ${weekRange(w.m)}</strong><span>${n} tarea${n===1?'':'s'}</span></div><div class="meter"><i style="width:${width}%"></i></div><div class="load-note">${overdue?overdue+' arrastre'+(overdue===1?' pendiente':'s pendientes')+' · ':''}${n>=5?'Carga alta':n>=3?'Carga media':n?'Carga baja':'Sin tareas fechadas'}</div></article>`}).join('')}
 function taskCard(t){return `<article class="task" data-task="${t.id}" data-search="${esc([t.title,t.next,t.status,t.priority,t.risk].join(' ').toLowerCase())}"><div class="num">#${t.id}</div><div><div class="badges"><span class="badge">${t.priority}</span><span class="badge ${riskClass(t.risk)}">${t.risk}</span><span class="badge">${esc(t.status)}</span></div><h3>${esc(t.title)}</h3><p>${esc(t.next)}</p></div><div class="task-date">${esc(t.label)}</div></article>`}
 function renderProjects(){document.querySelector('#projects').innerHTML=projects.map(p=>{const list=tasks.filter(t=>t.p===p.id);return `<article class="panel project" data-project="${p.id}"><div class="project-head"><h2>${esc(p.name)}</h2><span>${esc(p.deadline)}</span></div><div class="tasks">${list.map(taskCard).join('')}</div></article>`}).join('');document.querySelector('#project-select').insertAdjacentHTML('beforeend',projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''))}
@@ -87,10 +89,10 @@ function detailHtml(t){const p=projects.find(x=>x.id===t.p);return `<div class="
 function openTask(id){const t=tasks.find(x=>x.id===Number(id));document.querySelector('#modal-kicker').textContent='Tarea #'+t.id;document.querySelector('#modal-title').textContent=t.title;document.querySelector('#modal-body').innerHTML=detailHtml(t);document.querySelector('#overlay').classList.add('open')}
 function openWeek(key){const w=weeks.find(x=>x.key===key),list=datedInWeek(w),overdue=list.filter(isOverdue).sort((a,b)=>new Date(a.due)-new Date(b.due)),current=list.filter(t=>!isOverdue(t));document.querySelector('#modal-kicker').textContent='S'+w.n+' · '+weekRange(w.m);document.querySelector('#modal-title').textContent='Tareas de la semana';let html='';if(overdue.length)html+=`<div class="week-label" style="margin:14px 0 7px;color:var(--red)">Arrastre pendiente</div><div class="detail-list">${overdue.map(t=>`<article class="detail-task" data-detail-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(overdueLabel(t))} · fecha original: ${esc(t.label)}</span></article>`).join('')}</div>`;const grouped={};current.forEach(t=>(grouped[dayFmt(t.due)]??=[]).push(t));html+=Object.entries(grouped).map(([day,arr])=>`<div class="week-label" style="margin:14px 0 7px">${esc(day)}</div><div class="detail-list">${arr.map(t=>`<article class="detail-task" data-detail-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(t.next)}</span></article>`).join('')}</div>`).join('');document.querySelector('#modal-body').innerHTML=html||'<p class="week-range">No hay tareas fechadas esta semana.</p>';document.querySelector('#overlay').classList.add('open')}
 function openMilestone(id){const m=milestones.find(x=>x.id===id),t=tasks.find(x=>x.id===m.taskId);document.querySelector('#modal-kicker').textContent='Hito explícito · '+dayFmt(m.date);document.querySelector('#modal-title').textContent=m.title;document.querySelector('#modal-body').innerHTML=detailHtml(t);document.querySelector('#overlay').classList.add('open')}
-function renderDrawer(){const list=tasks.filter(t=>!t.due);document.querySelector('#undated-count').textContent=list.length;document.querySelector('#drawer-list').innerHTML=list.map(t=>`<article class="detail-task" data-drawer-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(projects.find(p=>p.id===t.p).name)} · ${t.priority} · ${t.risk}</span></article>`).join('')}
+function renderDrawer(){const list=tasks.filter(t=>!taskDate(t));document.querySelector('#undated-count').textContent=list.length;document.querySelector('#drawer-list').innerHTML=list.map(t=>`<article class="detail-task" data-drawer-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(projects.find(p=>p.id===t.p).name)} · ${t.priority} · ${t.risk}</span></article>`).join('')}
 function applyFilters(){const q=document.querySelector('#search').value.trim().toLowerCase(),p=document.querySelector('#project-select').value;let visible=0;document.querySelectorAll('.project').forEach(el=>{let n=0;el.querySelectorAll('.task').forEach(t=>{const ok=(!p||el.dataset.project===p)&&(!q||t.dataset.search.includes(q));t.classList.toggle('hidden',!ok);if(ok){n++;visible++}});el.classList.toggle('hidden',!n)});document.querySelector('#empty').style.display=visible?'none':'block'}
 function setView(v){const atlas=v==='atlas';document.querySelector('#chrono').classList.toggle('hidden',atlas);document.querySelector('#atlas').classList.toggle('active',atlas);document.querySelector('#tab-chrono').classList.toggle('active',!atlas);document.querySelector('#tab-atlas').classList.toggle('active',atlas)}
-const snapshotDate=new Date(SNAPSHOT.generated_at+'-04:00');
+const snapshotDate=new Date(SNAPSHOT.generated_at);
 document.querySelector('#snapshot-at').textContent=new Intl.DateTimeFormat('es-CL',{timeZone:TZ,dateStyle:'medium',timeStyle:'short'}).format(snapshotDate);
 const ageHours=(Date.now()-snapshotDate.getTime())/3600000;
 if(SNAPSHOT.status!=='current'||!Number.isFinite(ageHours)||ageHours>6){
@@ -107,4 +109,3 @@ function openDrawer(){document.querySelector('#drawer-wrap').classList.add('open
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('#overlay').classList.remove('open');document.querySelector('#drawer-wrap').classList.remove('open')}});
 </script>
 </body></html>
-
