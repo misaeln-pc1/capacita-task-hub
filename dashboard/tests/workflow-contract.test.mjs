@@ -27,7 +27,10 @@ test("regenera, valida y prueba antes de proponer cambios", () => {
 });
 
 test("crea rama y PR draft sin escribir directo en main", () => {
-  assert.match(workflow, /automation\/dashboard-snapshot-\$\{GITHUB_RUN_ID\}/);
+  assert.match(
+    workflow,
+    /automation\/dashboard-snapshot-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}/,
+  );
   assert.match(workflow, /git switch -c "\$branch"/);
   assert.match(workflow, /git push origin "\$branch"/);
   assert.match(workflow, /gh pr create/);
@@ -35,6 +38,17 @@ test("crea rama y PR draft sin escribir directo en main", () => {
   assert.doesNotMatch(workflow, /git push[^\n]*(HEAD:main|origin main)/);
 });
 
+test("cada reintento usa una rama diferente", () => {
+  assert.match(workflow, /GITHUB_RUN_ATTEMPT/);
+  assert.doesNotMatch(
+    workflow,
+    /branch="automation\/dashboard-snapshot-\$\{GITHUB_RUN_ID\}"/,
+  );
+});
+
 test("no contiene comandos de despliegue de Sites", () => {
-  assert.doesNotMatch(workflow, /chatgpt\.site|\bcheckpoint\s+(create|deploy)|\bsites?\s+deploy|npm\s+run\s+deploy/i);
+  assert.doesNotMatch(
+    workflow,
+    /chatgpt\.site|\bcheckpoint\s+(create|deploy)|\bsites?\s+deploy|npm\s+run\s+deploy/i,
+  );
 });
