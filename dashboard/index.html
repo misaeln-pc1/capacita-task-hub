@@ -1,111 +1,452 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Planificador diario · Atlas</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Planificador Atlas · Live</title>
 <style>
-:root{--bg:#07101d;--panel:#0d1a2d;--panel2:#102239;--line:#274561;--text:#f5f7fb;--muted:#9aadc2;--cyan:#55d8e8;--amber:#f6c84d;--red:#ff708d;--green:#58d39b;--blue:#5ca6ff;--shadow:0 22px 55px rgba(0,0,0,.28)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 12% 0,#12324f 0,transparent 27%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}.shell{width:min(1480px,calc(100% - 28px));margin:auto;padding:18px 0 60px}.panel{background:linear-gradient(145deg,rgba(16,34,57,.97),rgba(8,21,38,.97));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}.title{margin:0;font-size:clamp(27px,3vw,40px);letter-spacing:-.035em}.tabs{display:flex;gap:6px;padding:5px;background:#091827;border:1px solid var(--line);border-radius:14px}.tab{border:0;background:transparent;color:var(--muted);padding:10px 15px;border-radius:10px;cursor:pointer;font-weight:750}.tab.active{background:#17324e;color:var(--text)}.source{font-size:12px;color:var(--muted);text-align:right}
-.section{padding:18px;margin-bottom:16px}.section-title{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:14px}.section-title h2{margin:0;font-size:18px}.section-title p{margin:4px 0 0;color:var(--muted);font-size:12px}.week-scroll{display:flex;overflow-x:auto;padding:4px 0 10px;scrollbar-color:#375a79 transparent}.week{flex:1 0 210px;min-height:156px;padding:14px;border-left:1px solid var(--line);position:relative;cursor:pointer}.week:first-child{border-left:0}.week.current{background:linear-gradient(180deg,rgba(246,200,77,.10),transparent);box-shadow:inset 0 3px var(--amber)}.week-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);font-weight:850}.week.current .week-label{color:var(--amber)}.week-range{font-size:11px;color:var(--muted);margin-top:3px}.today-pill{display:inline-block;margin-top:9px;color:#16120a;background:var(--amber);border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900}.milestone{margin-top:11px;padding-left:12px;border-left:3px solid var(--red)}.milestone strong{display:block;font-size:14px}.milestone span{font-size:11px;color:var(--muted)}
-.load-grid{display:flex;gap:10px;overflow-x:auto;padding:3px 0 10px}.load-week{flex:1 0 205px;border:1px solid var(--line);border-radius:15px;padding:14px;cursor:pointer;background:#0a1829;transition:.18s transform,.18s border-color}.load-week:hover{transform:translateY(-2px);border-color:var(--cyan)}.load-top{display:flex;justify-content:space-between;gap:8px}.load-top strong{font-size:13px}.load-top span{font-size:12px;color:var(--muted)}.meter{height:11px;border-radius:999px;background:#152b42;margin:15px 0 9px;overflow:hidden}.meter i{display:block;height:100%;border-radius:999px}.low i{background:var(--green)}.medium i{background:var(--amber)}.high i{background:var(--red)}.load-note{font-size:11px;color:var(--muted)}
-.undated-btn{border:1px solid #6b5729;background:#241f12;color:#ffe08b;border-radius:999px;padding:9px 13px;cursor:pointer;font-size:12px;font-weight:800}.undated-btn[hidden]{display:none}
-.atlas{display:none}.atlas.active{display:block}.chrono.hidden{display:none}.criteria{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.7fr);gap:14px}.route{display:grid;gap:10px}.route-item{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:start;padding:14px;border:1px solid var(--line);border-radius:15px;background:#091827;cursor:pointer}.rank{display:grid;place-items:center;width:42px;height:42px;background:#173552;color:var(--cyan);border-radius:12px;font-weight:900}.route-item h3{font-size:15px;margin:0 0 5px}.route-item p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.route-meta{text-align:right;font-size:11px;color:var(--amber)}.criterion{padding:16px}.criterion h3{margin:0 0 10px;font-size:15px}.criterion ol{margin:0;padding-left:20px;color:var(--muted);font-size:12px;line-height:1.7}.assumption{margin-top:12px;padding:10px;background:#1e1a10;border:1px solid #5f4c27;border-radius:12px;color:#f8d989;font-size:11px}
-.controls{display:grid;grid-template-columns:1fr minmax(220px,.65fr) auto;gap:10px;margin:16px 0}.control{min-height:46px;border:1px solid var(--line);border-radius:13px;background:#091827;color:var(--text);padding:0 13px}.reset{cursor:pointer;color:var(--cyan);font-weight:800}.projects{display:grid;gap:14px}.project{padding:17px}.project.hidden{display:none}.project-head{display:flex;justify-content:space-between;gap:14px;margin-bottom:12px}.project h2{font-size:19px;margin:0}.project-head span{font-size:11px;color:var(--amber);text-align:right}.tasks{display:grid;gap:8px}.task{display:grid;grid-template-columns:42px 1fr auto;gap:11px;padding:12px;border:1px solid rgba(47,78,108,.72);border-radius:14px;background:rgba(5,15,27,.58);cursor:pointer}.task.hidden{display:none}.num{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#112c46;color:var(--cyan);font-weight:850}.badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}.badge{border:1px solid #344c65;border-radius:999px;padding:2px 7px;color:#c4d1df;font-size:10px}.badge.red{color:#ff9cb0;border-color:#6d3547}.badge.amber{color:#ffe08a;border-color:#65542d}.badge.green{color:#90edc0;border-color:#2e6650}.task h3{font-size:14px;margin:0 0 4px}.task p{font-size:12px;color:var(--muted);margin:0}.task-date{text-align:right;color:#dce5ef;font-size:11px}
-.overlay{position:fixed;inset:0;background:rgba(1,7,13,.74);backdrop-filter:blur(5px);display:none;z-index:50;padding:20px}.overlay.open{display:grid;place-items:center}.modal{width:min(760px,100%);max-height:min(760px,90vh);overflow:auto;padding:20px}.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:14px}.modal h2{margin:0;font-size:21px}.close{border:0;background:#142b43;color:var(--text);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:20px}.detail-list{display:grid;gap:9px}.detail-task{padding:13px;border:1px solid var(--line);border-radius:13px;background:#091827;cursor:pointer}.detail-task strong{display:block;margin-bottom:4px}.detail-task span{font-size:11px;color:var(--muted)}.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:14px 0}.detail-cell{padding:11px;border:1px solid var(--line);border-radius:11px}.detail-cell small{display:block;color:var(--muted);margin-bottom:4px}.detail-link{display:inline-block;margin-top:5px;color:var(--cyan);text-decoration:none;font-weight:800;font-size:12px}
-.drawer-wrap{position:fixed;inset:0;background:rgba(1,7,13,.52);display:none;z-index:45}.drawer-wrap.open{display:block}.drawer{margin-left:auto;width:min(430px,92vw);height:100%;padding:20px;border-radius:0;overflow:auto}.drawer .detail-task{margin-bottom:8px}.empty{display:none;padding:30px;text-align:center;color:var(--muted)}.foot{padding:14px 17px;color:var(--muted);font-size:11px;line-height:1.5;margin-top:15px}.stale{display:none;margin-bottom:14px;padding:12px 16px;border:1px solid #7b5530;background:#2b1d10;color:#ffd48f;border-radius:14px;font-size:13px;font-weight:750}.stale.show{display:block}
-@media(max-width:850px){.shell{width:min(100% - 16px,1480px);padding-top:10px}.topbar{align-items:start;flex-direction:column}.source{text-align:left}.criteria{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.project-head{flex-direction:column}.project-head span{text-align:left}.task,.route-item{grid-template-columns:40px 1fr}.task-date,.route-meta{grid-column:2;text-align:left}.detail-grid{grid-template-columns:1fr}.section{padding:14px}.tabs{width:100%}.tab{flex:1;padding:9px 8px;font-size:12px}}
+:root{
+  --bg:#07101d;--panel:#0d1a2d;--panel2:#102239;--line:#274561;
+  --text:#f5f7fb;--muted:#9aadc2;--cyan:#55d8e8;--amber:#f6c84d;
+  --red:#ff708d;--green:#58d39b;--blue:#5ca6ff;--shadow:0 22px 55px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at 12% 0,#12324f 0,transparent 27%),var(--bg)
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.shell{width:min(1480px,calc(100% - 28px));margin:auto;padding:18px 0 60px}
+.panel{
+  background:linear-gradient(145deg,rgba(16,34,57,.97),rgba(8,21,38,.97));
+  border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)
+}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#153650;color:var(--cyan);font-weight:950;font-size:20px}
+.title{margin:0;font-size:clamp(27px,3vw,40px);letter-spacing:-.035em}
+.subtitle{color:var(--muted);font-size:12px;margin-top:4px}
+.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.live{display:inline-flex;align-items:center;gap:7px;border:1px solid #2e6650;background:#0e2b24;color:#90edc0;padding:9px 12px;border-radius:999px;font-size:12px;font-weight:850}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(88,211,155,.12)}
+.refresh{border:1px solid #3c6f91;background:#153650;color:var(--text);min-height:42px;padding:0 16px;border-radius:13px;font-weight:850}
+.refresh:hover{border-color:var(--cyan)}
+.refresh:disabled{opacity:.55;cursor:wait}
+.meta{text-align:right;color:var(--muted);font-size:11px;line-height:1.5}
+.banner{display:none;margin-bottom:14px;padding:12px 16px;border-radius:14px;font-size:13px;font-weight:750}
+.banner.show{display:block}
+.banner.error{border:1px solid #7b3546;background:#2c1018;color:#ffb0c0}
+.banner.info{border:1px solid #315f7c;background:#10283a;color:#b8eaf1}
+.metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.metric{padding:17px;min-height:116px}
+.metric small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:850}
+.metric strong{display:block;font-size:34px;line-height:1;margin:13px 0 8px}
+.metric span{font-size:11px;color:var(--muted)}
+.metric.danger strong{color:var(--red)}
+.metric.warn strong{color:var(--amber)}
+.metric.good strong{color:var(--green)}
+.section{padding:18px;margin-bottom:16px}
+.section-head{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:14px}
+.section-head h2{margin:0;font-size:18px}
+.section-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.focus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.focus-card{position:relative;padding:16px;border:1px solid var(--line);border-radius:16px;background:#091827;text-decoration:none;transition:.18s transform,.18s border-color}
+.focus-card:hover{transform:translateY(-2px);border-color:var(--cyan)}
+.focus-rank{position:absolute;right:13px;top:12px;color:#173552;font-size:42px;font-weight:950;line-height:1}
+.focus-card h3{position:relative;margin:9px 45px 7px 0;font-size:15px}
+.focus-card p{position:relative;margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{display:inline-flex;border:1px solid #344c65;border-radius:999px;padding:3px 8px;color:#c4d1df;font-size:10px;font-weight:800}
+.badge.red{color:#ff9cb0;border-color:#6d3547}
+.badge.amber{color:#ffe08a;border-color:#65542d}
+.badge.green{color:#90edc0;border-color:#2e6650}
+.controls{display:grid;grid-template-columns:minmax(220px,1fr) repeat(3,minmax(145px,.35fr)) auto;gap:10px;margin-bottom:16px}
+.control{min-height:46px;border:1px solid var(--line);border-radius:13px;background:#091827;color:var(--text);padding:0 13px}
+.reset{color:var(--cyan);font-weight:850}
+.projects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.project{padding:17px}
+.project.hidden{display:none}
+.project-head{display:flex;justify-content:space-between;gap:14px;margin-bottom:12px}
+.project h2{font-size:18px;margin:0}
+.project-head span{font-size:11px;color:var(--amber);text-align:right}
+.tasks{display:grid;gap:8px}
+.task{display:grid;grid-template-columns:48px 1fr auto;gap:11px;padding:12px;border:1px solid rgba(47,78,108,.72);border-radius:14px;background:rgba(5,15,27,.58);text-decoration:none;transition:.16s border-color,.16s transform}
+.task:hover{border-color:var(--cyan);transform:translateY(-1px)}
+.task.hidden{display:none}
+.num{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:#112c46;color:var(--cyan);font-weight:900}
+.task h3{font-size:14px;margin:5px 0 4px}
+.task p{font-size:12px;color:var(--muted);margin:0;line-height:1.4}
+.task-date{text-align:right;color:#dce5ef;font-size:11px;white-space:nowrap}
+.task-date.overdue{color:var(--red);font-weight:850}
+.empty{display:none;padding:34px;text-align:center;color:var(--muted)}
+.loading{display:grid;place-items:center;min-height:260px;color:var(--muted)}
+.spinner{width:30px;height:30px;border:3px solid #23435d;border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.foot{padding:14px 17px;color:var(--muted);font-size:11px;line-height:1.55;margin-top:15px}
+@media(max-width:1050px){
+  .metrics{grid-template-columns:repeat(3,1fr)}
+  .projects{grid-template-columns:1fr}
+  .controls{grid-template-columns:1fr 1fr}
+  .focus-grid{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  .shell{width:min(100% - 16px,1480px);padding-top:10px}
+  .topbar{align-items:flex-start;flex-direction:column}
+  .actions{justify-content:flex-start}.meta{text-align:left}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .controls{grid-template-columns:1fr}
+  .task{grid-template-columns:42px 1fr}
+  .num{width:42px;height:42px}
+  .task-date{grid-column:2;text-align:left}
+}
 </style>
 </head>
 <body>
 <main class="shell">
-<header class="topbar"><div><h1 class="title">Planificador diario</h1><div class="tabs" role="tablist"><button class="tab active" id="tab-chrono" type="button">Vista cronológica</button><button class="tab" id="tab-atlas" type="button">Propuesta Atlas</button></div></div><div class="source">Semana ISO · lunes a domingo<br>Snapshot: <span id="snapshot-at">cargando</span> · America/Santiago</div></header>
-<div class="stale" id="stale-warning" role="alert"></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div>
+        <h1 class="title">Planificador Atlas</h1>
+        <div class="subtitle">Dashboard visual conectado directamente a GitHub Issues</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="live">API en vivo</span>
+      <button class="refresh" id="refresh" type="button">Actualizar ahora</button>
+      <div class="meta">
+        <div id="updated-at">Sin actualizar</div>
+        <div id="rate-limit"></div>
+      </div>
+    </div>
+  </header>
 
-<div class="chrono" id="chrono">
-<section class="panel section"><div class="section-title"><div><h2>Hitos estratégicos</h2><p>Solo hitos clasificados explícitamente. La vista comienza en la semana actual.</p></div><button class="undated-btn" id="undated-open">Sin fecha · <span id="undated-count">10</span></button></div><div class="week-scroll" id="milestone-weeks"></div></section>
-<section class="panel section"><div class="section-title"><div><h2>Carga de tareas por semana</h2><p>Todas las tareas fechadas desde hoy. Pulsa una semana para ver el detalle por día.</p></div></div><div class="load-grid" id="load-weeks"></div></section>
-</div>
+  <div class="banner error" id="error-banner" role="alert"></div>
+  <div class="banner info" id="info-banner">El repositorio y sus issues son públicos. No se usa token ni snapshot.</div>
 
-<section class="atlas panel section" id="atlas"><div class="section-title"><div><h2>Ruta recomendada por Atlas</h2><p>Propuesta explicable; no cambia prioridades ni fechas oficiales.</p></div><button class="undated-btn" id="undated-open-atlas">Sin fecha · <span>10</span></button></div><div class="criteria"><div class="route" id="route"></div><aside class="panel criterion"><h3>Criterio de ordenamiento</h3><ol><li>Fecha límite y tiempo restante.</li><li>Dependencias obligatorias.</li><li>Riesgo de incumplimiento.</li><li>Impacto comercial, operativo, SENCE o financiero.</li><li>Esfuerzo y capacidad disponible.</li><li>Holgura antes del hito.</li><li>Trabajo paralelizable o delegable.</li></ol><div class="assumption">Supuesto: las tareas sin fecha no entran en la ruta crítica hasta ser fechadas o vinculadas explícitamente a un hito.</div></aside></div></section>
+  <section class="metrics" aria-label="Indicadores">
+    <article class="panel metric"><small>Pendientes</small><strong id="m-total">—</strong><span>Issues abiertas vigentes</span></article>
+    <article class="panel metric warn"><small>Prioridad P1</small><strong id="m-p1">—</strong><span>Atención inmediata</span></article>
+    <article class="panel metric danger"><small>Vencidas</small><strong id="m-overdue">—</strong><span>Fecha objetivo anterior a hoy</span></article>
+    <article class="panel metric danger"><small>Riesgo rojo</small><strong id="m-red">—</strong><span>Control humano obligatorio</span></article>
+    <article class="panel metric good"><small>Sin fecha</small><strong id="m-undated">—</strong><span>Requieren planificación</span></article>
+  </section>
 
-<section class="controls" aria-label="Filtros"><input class="control" id="search" type="search" placeholder="Buscar tarea, proyecto o siguiente acción"><select class="control" id="project-select"><option value="">Todos los proyectos</option></select><button class="control reset" id="reset">Restablecer</button></section>
-<section class="projects" id="projects"></section><div class="panel empty" id="empty">No hay tareas que coincidan con la selección.</div>
-<footer class="panel foot">Capa privada de lectura. Los dictados se aplican primero en GitHub; el Site refleja los cambios al generar un nuevo snapshot. GitHub Issues y Planificador Atlas siguen siendo la fuente oficial.</footer>
+  <section class="panel section">
+    <div class="section-head">
+      <div><h2>Foco inmediato</h2><p>Máximo tres tareas, calculadas desde prioridad, vencimiento, riesgo y fecha.</p></div>
+    </div>
+    <div class="focus-grid" id="focus"></div>
+  </section>
+
+  <section class="controls" aria-label="Filtros">
+    <input class="control" id="search" type="search" placeholder="Buscar tarea o siguiente acción">
+    <select class="control" id="project-filter"><option value="">Todos los proyectos</option></select>
+    <select class="control" id="status-filter"><option value="">Todos los estados</option></select>
+    <select class="control" id="risk-filter"><option value="">Todos los riesgos</option></select>
+    <button class="control reset" id="reset" type="button">Restablecer</button>
+  </section>
+
+  <section id="content">
+    <div class="panel loading"><div><div class="spinner"></div>Cargando GitHub Issues…</div></div>
+  </section>
+  <div class="panel empty" id="empty">No hay tareas que coincidan con los filtros.</div>
+
+  <footer class="panel foot">
+    Fuente oficial: GitHub Issues de <strong>misaeln-pc1/capacita-task-hub</strong>.
+    El dashboard consulta la API pública al abrirse, cada cinco minutos y al pulsar <strong>Actualizar ahora</strong>.
+    Crear, editar o cerrar una tarea no requiere regenerar archivos ni desplegar nuevamente el dashboard.
+  </footer>
 </main>
 
-<div class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="panel modal"><div class="modal-head"><div><div class="week-label" id="modal-kicker"></div><h2 id="modal-title"></h2></div><button class="close" id="modal-close" aria-label="Cerrar">×</button></div><div id="modal-body"></div></div></div>
-<div class="drawer-wrap" id="drawer-wrap"><aside class="panel drawer"><div class="modal-head"><div><div class="week-label">Buffer operativo</div><h2>Tareas sin fecha</h2><p class="week-range">Asigna fechas mediante Atlas para retirarlas de este panel en el siguiente snapshot.</p></div><button class="close" id="drawer-close" aria-label="Cerrar">×</button></div><div id="drawer-list"></div></aside></div>
-
-<script src="./snapshot.js"></script>
 <script>
-const SNAPSHOT=window.__ATLAS_SNAPSHOT__;
-if(!SNAPSHOT||!Array.isArray(SNAPSHOT.tasks))throw new Error('Snapshot ausente: despliegue inválido');
-const TZ=SNAPSHOT.timezone, TODAY=SNAPSHOT.today;
-const projects=[
-{id:'quality',name:'Gestión de Calidad NCh 2728',deadline:'Auditoría final · 11 ago 2026'},
-{id:'courses',name:'Operación de cursos',deadline:'Inicio curso · 15 jul 2026'},
-{id:'otic',name:'Licitación OTIC SOFOFA',deadline:'Entrega · 22 jul 2026 · 14:00'},
-{id:'admin',name:'Administración',deadline:'Sin hito definido'},
-{id:'global',name:'Global y foco comercial',deadline:'Sin hito definido'},
-{id:'moodle',name:'Moodle',deadline:'Sin hito definido'},
-{id:'edge',name:'Edge / GTM',deadline:'Bloqueado'},
-{id:'whatsapp',name:'WhatsApp / Zoho',deadline:'Sin hito definido'},
-{id:'atlas',name:'Task Hub / Dashboard',deadline:'Publicación V3'}];
-const tasks=SNAPSHOT.tasks;
-const milestones=[
-{id:'m1',date:'2026-07-15',title:'Inicio curso Excel',project:'Operación de cursos',taskId:22},
-{id:'m2',date:'2026-07-22',title:'Entrega SOFOFA · 14:00',project:'OTIC SOFOFA',taskId:21},
-{id:'m3',date:'2026-07-24',title:'Preauditoría',project:'NCh 2728',taskId:25},
-{id:'m4',date:'2026-08-11',title:'Auditoría final',project:'NCh 2728',taskId:24}];
-const atlasRoute=[
-{taskId:15,why:'Tarea vencida no cerrada. Debe cerrarse, reprogramarse o confirmarse antes de seguir acumulando atraso.',protects:'Ruta SOFOFA',mode:'Arrastre pendiente'},
-{taskId:26,why:'Dependencia obligatoria de la preauditoría y la auditoría final.',protects:'Preauditoría · 24 jul',mode:'Ejecutar primero'},
-{taskId:22,why:'Plazo inmediato y afectación directa al inicio de un curso de cliente.',protects:'Inicio curso · 15 jul',mode:'En paralelo'},
-{taskId:21,why:'Hito oficial de alto riesgo con múltiples entregables y validación humana.',protects:'SOFOFA · 22 jul',mode:'Ruta crítica'},
-{taskId:25,why:'Debe convertir hallazgos en acciones antes de la auditoría formal.',protects:'Auditoría · 11 ago',mode:'Después de preparación'},
-{taskId:24,why:'Hito final protegido por todas las tareas previas de calidad.',protects:'Auditoría · 11 ago',mode:'Hito final'}];
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const riskClass=r=>r==='Rojo'?'red':r==='Amarillo'?'amber':'green';
-const calendarDate=value=>new Date(value.slice(0,10)+'T12:00:00.000Z');
-const dayFmt=v=>new Intl.DateTimeFormat('es-CL',{timeZone:v.length===10?'UTC':TZ,weekday:'long',day:'2-digit',month:'short'}).format(v.length===10?calendarDate(v):new Date(v));
-function isoWeek(value){const u=calendarDate(value);u.setUTCDate(u.getUTCDate()+4-(u.getUTCDay()||7));const y=new Date(Date.UTC(u.getUTCFullYear(),0,1));return Math.ceil((((u-y)/86400000)+1)/7)}
-function mondayOf(value){const d=calendarDate(value),day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);return d}
-function keyDate(d){return d.toISOString().slice(0,10)}
-function addDays(d,n){const x=new Date(d);x.setUTCDate(x.getUTCDate()+n);return x}
-function weekRange(m){const e=addDays(m,6),f=x=>new Intl.DateTimeFormat('es-CL',{timeZone:'UTC',day:'2-digit',month:'short'}).format(x);return f(m)+'–'+f(e)}
-function taskDate(t){return t.due_date||t.due?.slice(0,10)||null}
-function isOverdue(t){const d=taskDate(t);return Boolean(d&&d<TODAY)}
-function overdueDays(t){const d=taskDate(t);return Math.max(1,Math.floor((Date.parse(TODAY+'T00:00:00.000Z')-Date.parse(d+'T00:00:00.000Z'))/86400000))}
-function overdueLabel(t){const n=overdueDays(t);return 'Vencida hace '+n+' día'+(n===1?'':'s')}
-const start=mondayOf(TODAY),last=mondayOf('2026-08-11'),weeks=[];for(let d=new Date(start);d<=last;d=addDays(d,7))weeks.push({m:new Date(d),key:keyDate(d),n:isoWeek(keyDate(d))});
-function renderMilestones(){document.querySelector('#milestone-weeks').innerHTML=weeks.map((w,i)=>{const ms=milestones.filter(m=>tasks.some(t=>t.id===m.taskId)&&keyDate(mondayOf(m.date))===w.key);return `<article class="week ${i===0?'current':''}" data-week="${w.key}"><div class="week-label">S${w.n}${i===0?' · actual':''}</div><div class="week-range">${weekRange(w.m)}</div>${i===0?'<span class="today-pill">Hoy · '+new Intl.DateTimeFormat('es-CL',{timeZone:'UTC',day:'2-digit',month:'short'}).format(calendarDate(TODAY))+'</span>':''}${ms.map(m=>`<div class="milestone" data-milestone="${m.id}"><strong>${esc(m.title)}</strong><span>${esc(m.project)} · ${dayFmt(m.date)}</span></div>`).join('')}</article>`}).join('')}
-function datedInWeek(w){const current=w.key===weeks[0].key;return tasks.filter(t=>{const d=taskDate(t);return d&&((current&&isOverdue(t))||(d>=TODAY&&keyDate(mondayOf(d))===w.key))})}
-function renderLoad(){document.querySelector('#load-weeks').innerHTML=weeks.map(w=>{const list=datedInWeek(w),n=list.length,overdue=list.filter(isOverdue).length,level=n>=5?'high':n>=3?'medium':'low',width=Math.min(100,Math.max(n?25:5,n*18));return `<article class="load-week ${level}" data-load-week="${w.key}"><div class="load-top"><strong>S${w.n} · ${weekRange(w.m)}</strong><span>${n} tarea${n===1?'':'s'}</span></div><div class="meter"><i style="width:${width}%"></i></div><div class="load-note">${overdue?overdue+' arrastre'+(overdue===1?' pendiente':'s pendientes')+' · ':''}${n>=5?'Carga alta':n>=3?'Carga media':n?'Carga baja':'Sin tareas fechadas'}</div></article>`}).join('')}
-function taskCard(t){return `<article class="task" data-task="${t.id}" data-search="${esc([t.title,t.next,t.status,t.priority,t.risk].join(' ').toLowerCase())}"><div class="num">#${t.id}</div><div><div class="badges"><span class="badge">${t.priority}</span><span class="badge ${riskClass(t.risk)}">${t.risk}</span><span class="badge">${esc(t.status)}</span></div><h3>${esc(t.title)}</h3><p>${esc(t.next)}</p></div><div class="task-date">${esc(t.label)}</div></article>`}
-function renderProjects(){document.querySelector('#projects').innerHTML=projects.map(p=>{const list=tasks.filter(t=>t.p===p.id);return `<article class="panel project" data-project="${p.id}"><div class="project-head"><h2>${esc(p.name)}</h2><span>${esc(p.deadline)}</span></div><div class="tasks">${list.map(taskCard).join('')}</div></article>`}).join('');document.querySelector('#project-select').insertAdjacentHTML('beforeend',projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''))}
-function renderRoute(){document.querySelector('#route').innerHTML=atlasRoute.filter(r=>tasks.some(t=>t.id===r.taskId)).map((r,i)=>{const t=tasks.find(x=>x.id===r.taskId);return `<article class="route-item" data-task="${t.id}"><div class="rank">${i+1}</div><div><h3>${esc(t.title)}</h3><p>${esc(r.why)}<br><strong>Protege:</strong> ${esc(r.protects)}</p></div><div class="route-meta">${esc(r.mode)}</div></article>`}).join('')}
-function detailHtml(t){const p=projects.find(x=>x.id===t.p);return `<div class="badges"><span class="badge">${t.priority}</span><span class="badge ${riskClass(t.risk)}">${t.risk}</span><span class="badge">${esc(t.status)}</span>${isOverdue(t)?'<span class="badge red">'+esc(overdueLabel(t))+'</span>':''}</div><div class="detail-grid"><div class="detail-cell"><small>Proyecto</small>${esc(p.name)}</div><div class="detail-cell"><small>Fecha original</small>${esc(t.label)}</div></div><div class="detail-cell"><small>Siguiente acción</small>${esc(t.next)}</div><a class="detail-link" href="${esc(t.url)}" target="_blank" rel="noopener noreferrer">Abrir issue en GitHub ↗</a>`}
-function openTask(id){const t=tasks.find(x=>x.id===Number(id));document.querySelector('#modal-kicker').textContent='Tarea #'+t.id;document.querySelector('#modal-title').textContent=t.title;document.querySelector('#modal-body').innerHTML=detailHtml(t);document.querySelector('#overlay').classList.add('open')}
-function openWeek(key){const w=weeks.find(x=>x.key===key),list=datedInWeek(w),overdue=list.filter(isOverdue).sort((a,b)=>new Date(a.due)-new Date(b.due)),current=list.filter(t=>!isOverdue(t));document.querySelector('#modal-kicker').textContent='S'+w.n+' · '+weekRange(w.m);document.querySelector('#modal-title').textContent='Tareas de la semana';let html='';if(overdue.length)html+=`<div class="week-label" style="margin:14px 0 7px;color:var(--red)">Arrastre pendiente</div><div class="detail-list">${overdue.map(t=>`<article class="detail-task" data-detail-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(overdueLabel(t))} · fecha original: ${esc(t.label)}</span></article>`).join('')}</div>`;const grouped={};current.forEach(t=>(grouped[dayFmt(t.due)]??=[]).push(t));html+=Object.entries(grouped).map(([day,arr])=>`<div class="week-label" style="margin:14px 0 7px">${esc(day)}</div><div class="detail-list">${arr.map(t=>`<article class="detail-task" data-detail-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(t.next)}</span></article>`).join('')}</div>`).join('');document.querySelector('#modal-body').innerHTML=html||'<p class="week-range">No hay tareas fechadas esta semana.</p>';document.querySelector('#overlay').classList.add('open')}
-function openMilestone(id){const m=milestones.find(x=>x.id===id),t=tasks.find(x=>x.id===m.taskId);document.querySelector('#modal-kicker').textContent='Hito explícito · '+dayFmt(m.date);document.querySelector('#modal-title').textContent=m.title;document.querySelector('#modal-body').innerHTML=detailHtml(t);document.querySelector('#overlay').classList.add('open')}
-function renderDrawer(){const list=tasks.filter(t=>!taskDate(t));document.querySelector('#undated-count').textContent=list.length;document.querySelector('#drawer-list').innerHTML=list.map(t=>`<article class="detail-task" data-drawer-task="${t.id}"><strong>#${t.id} · ${esc(t.title)}</strong><span>${esc(projects.find(p=>p.id===t.p).name)} · ${t.priority} · ${t.risk}</span></article>`).join('')}
-function applyFilters(){const q=document.querySelector('#search').value.trim().toLowerCase(),p=document.querySelector('#project-select').value;let visible=0;document.querySelectorAll('.project').forEach(el=>{let n=0;el.querySelectorAll('.task').forEach(t=>{const ok=(!p||el.dataset.project===p)&&(!q||t.dataset.search.includes(q));t.classList.toggle('hidden',!ok);if(ok){n++;visible++}});el.classList.toggle('hidden',!n)});document.querySelector('#empty').style.display=visible?'none':'block'}
-function setView(v){const atlas=v==='atlas';document.querySelector('#chrono').classList.toggle('hidden',atlas);document.querySelector('#atlas').classList.toggle('active',atlas);document.querySelector('#tab-chrono').classList.toggle('active',!atlas);document.querySelector('#tab-atlas').classList.toggle('active',atlas)}
-const snapshotDate=new Date(SNAPSHOT.generated_at);
-document.querySelector('#snapshot-at').textContent=new Intl.DateTimeFormat('es-CL',{timeZone:TZ,dateStyle:'medium',timeStyle:'short'}).format(snapshotDate);
-const ageHours=(Date.now()-snapshotDate.getTime())/3600000;
-if(SNAPSHOT.status!=='current'||!Number.isFinite(ageHours)||ageHours>6){
-  const warning=document.querySelector('#stale-warning');
-  warning.textContent='Datos no actualizados — último snapshot válido: '+document.querySelector('#snapshot-at').textContent;
-  warning.classList.add('show');
+"use strict";
+
+const API_BASE = "https://api.github.com/repos/misaeln-pc1/capacita-task-hub/issues";
+const TIME_ZONE = "America/Santiago";
+const OPEN_STATES = ["Inbox","Hoy","Próxima","En curso","Bloqueada"];
+const MONTHS = {enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,octubre:10,noviembre:11,diciembre:12};
+const PROJECTS = [
+  {id:"quality",name:"Gestión de Calidad NCh 2728"},
+  {id:"courses",name:"Operación de cursos"},
+  {id:"otic",name:"Licitaciones / OTIC"},
+  {id:"admin",name:"Administración"},
+  {id:"global",name:"Global y foco comercial"},
+  {id:"moodle",name:"Moodle"},
+  {id:"edge",name:"Edge / GTM"},
+  {id:"whatsapp",name:"WhatsApp / Zoho"},
+  {id:"atlas",name:"Task Hub / Dashboard"}
+];
+
+let tasks = [];
+let rateRemaining = null;
+let refreshing = false;
+
+const $ = (selector) => document.querySelector(selector);
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const section = (body, heading) => {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  return body.match(new RegExp("##\\s+"+escaped+"\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)","i"))?.[1]?.trim() ?? "";
+};
+const firstMatch = (text, patterns) => {
+  for (const pattern of patterns) {
+    const value = text.match(pattern)?.[1]?.trim();
+    if (value) return value;
+  }
+  return null;
+};
+const zonedParts = (date = new Date()) => Object.fromEntries(
+  new Intl.DateTimeFormat("en-CA",{
+    timeZone:TIME_ZONE,year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"
+  }).formatToParts(date).filter((p)=>p.type!=="literal").map((p)=>[p.type,p.value])
+);
+const todayLocal = () => {
+  const p=zonedParts();
+  return `${p.year}-${p.month}-${p.day}`;
+};
+const dueValue = (year,month,day) => `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+const parseDue = (body = "") => {
+  const focused=[section(body,"Fecha objetivo"),section(body,"Fecha límite"),section(body,"Fecha"),section(body,"Fechas")].filter(Boolean).join("\n") || body;
+  const iso=focused.match(/\b(20\d{2})-(\d{2})-(\d{2})/);
+  if(iso)return dueValue(iso[1],iso[2],iso[3]);
+  const slash=focused.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](20\d{2})/);
+  if(slash)return dueValue(slash[3],slash[2],slash[1]);
+  const words=focused.toLowerCase().match(/\b(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\s+de\s+(20\d{2})/);
+  return words ? dueValue(words[3],MONTHS[words[2]],words[1]) : null;
+};
+const projectId = (issue) => {
+  const body=issue.body ?? "";
+  const text=(issue.title+"\n"+body).toLowerCase();
+  const declared=(section(body,"Proyecto operativo") || firstMatch(body,[
+    /\*\*Proyecto operativo:\*\*\s*([^\n]+)/i,/\*\*Proyecto:\*\*\s*([^\n]+)/i,
+    /Proyecto operativo\s*:\s*([^\n]+)/i,/Proyecto\s*:\s*([^\n]+)/i
+  ]) || "").toLowerCase();
+  if(/nch\s*2728|gestión de calidad/.test(declared))return "quality";
+  if(/licitación|otic|sofofa|mercado público/.test(declared))return "otic";
+  if(/moodle/.test(declared))return "moodle";
+  if(/whatsapp|zoho/.test(declared))return "whatsapp";
+  if(/edge|gtm|landing/.test(declared))return "edge";
+  if(/global|comercial/.test(declared))return "global";
+  if(/operación de cursos|curso/.test(declared))return "courses";
+  if(/task hub|atlas/.test(declared))return /dashboard|planificador/.test(issue.title.toLowerCase()) ? "atlas" : "admin";
+  if(/nch\s*2728|gestión de calidad/.test(text))return "quality";
+  if(/sofofa|licitaciones?|otic|mercado público/.test(text))return "otic";
+  if(/moodle/.test(text))return "moodle";
+  if(/whatsapp|zoho/.test(text))return "whatsapp";
+  if(/edge|gtm|landing/.test(text))return "edge";
+  if(/\[global\]|priorización comercial/.test(text))return "global";
+  if(/curso excel|operación de cursos|inicio del curso/.test(text))return "courses";
+  if(/dashboard|task hub|planificador atlas/.test(text))return "atlas";
+  return "admin";
+};
+const normalizeIssue = (issue) => {
+  const body=issue.body ?? "";
+  const priority=firstMatch(body,[/\*\*Prioridad[^*]*:\*\*\s*(P[123])/i,/Prioridad\s*:\s*(P[123])/i]) ?? "P2";
+  const riskRaw=firstMatch(body,[/\*\*Riesgo[^*]*:\*\*\s*(Rojo|Amarillo|Verde)/i,/Riesgo\s*:\s*(Rojo|Amarillo|Verde)/i,/Semáforo[\s\S]{0,80}\b(Rojo|Amarillo|Verde)\b/i]) ?? "Amarillo";
+  const risk=riskRaw.charAt(0).toUpperCase()+riskRaw.slice(1).toLowerCase();
+  const statusRaw=firstMatch(body,[/\*\*Estado[^*]*:\*\*\s*([^\n—-]+)/i,/Estado\s*:\s*([^\n—-]+)/i]) ?? "Inbox";
+  const key=statusRaw.replace(/[.*_]/g,"").trim().toLowerCase();
+  const status=OPEN_STATES.find((value)=>value.toLowerCase()===key) ?? statusRaw.trim();
+  const next=(section(body,"Siguiente acción") || section(body,"Acción siguiente") || section(body,"Siguiente paso") || "Revisar la issue y definir la siguiente acción.").replace(/\s+/g," ").trim();
+  const due=parseDue(body);
+  return {
+    id:issue.number,
+    p:projectId(issue),
+    title:issue.title.replace(/^(?:\[[^\]]+\]\s*)+/,"").trim(),
+    priority,risk,status,next,due,
+    url:issue.html_url,
+    updatedAt:issue.updated_at
+  };
+};
+const projectName = (id) => PROJECTS.find((project)=>project.id===id)?.name ?? "Otro";
+const riskClass = (risk) => risk==="Rojo" ? "red" : risk==="Amarillo" ? "amber" : "green";
+const isOverdue = (task) => Boolean(task.due && task.due < todayLocal());
+const dueLabel = (task) => {
+  if(!task.due)return "Sin fecha";
+  const label=new Intl.DateTimeFormat("es-CL",{timeZone:"UTC",day:"2-digit",month:"short",year:"numeric"}).format(new Date(task.due+"T12:00:00Z"));
+  return isOverdue(task) ? `Vencida · ${label}` : label;
+};
+const scoreTask = (task) => {
+  let score={P1:70,P2:35,P3:10}[task.priority] ?? 20;
+  if(task.risk==="Rojo")score+=45;
+  if(task.risk==="Amarillo")score+=15;
+  if(task.status==="Hoy")score+=40;
+  if(task.status==="En curso")score+=20;
+  if(task.status==="Bloqueada")score+=25;
+  if(isOverdue(task))score+=60;
+  if(task.due){
+    const days=Math.ceil((Date.parse(task.due+"T12:00:00Z")-Date.parse(todayLocal()+"T12:00:00Z"))/86400000);
+    if(days>=0&&days<=2)score+=40;
+    else if(days<=7)score+=20;
+  }
+  return score;
+};
+
+async function fetchOpenIssues(){
+  const all=[];
+  for(let page=1;;page+=1){
+    const url=`${API_BASE}?state=open&per_page=100&page=${page}&_=${Date.now()}`;
+    const response=await fetch(url,{
+      cache:"no-store",
+      headers:{
+        Accept:"application/vnd.github+json",
+        "X-GitHub-Api-Version":"2022-11-28"
+      }
+    });
+    rateRemaining=response.headers.get("x-ratelimit-remaining");
+    if(!response.ok){
+      let detail="";
+      try{detail=(await response.json()).message ?? ""}catch{}
+      if(response.status===404)throw new Error("GitHub todavía no expone públicamente el repositorio o la visibilidad no terminó de propagarse.");
+      if(response.status===403)throw new Error("GitHub bloqueó temporalmente la consulta pública por límite de solicitudes.");
+      throw new Error(`GitHub respondió ${response.status}. ${detail}`);
+    }
+    const items=await response.json();
+    all.push(...items.filter((item)=>!item.pull_request));
+    if(items.length<100)return all;
+  }
 }
-renderMilestones();renderLoad();renderProjects();renderRoute();renderDrawer();applyFilters();
-document.querySelector('#tab-chrono').onclick=()=>setView('chrono');document.querySelector('#tab-atlas').onclick=()=>setView('atlas');
-document.querySelector('#search').oninput=applyFilters;document.querySelector('#project-select').onchange=applyFilters;document.querySelector('#reset').onclick=()=>{document.querySelector('#search').value='';document.querySelector('#project-select').value='';applyFilters()};
-document.addEventListener('click',e=>{const task=e.target.closest('[data-task]');if(task)openTask(task.dataset.task);const week=e.target.closest('[data-load-week]');if(week)openWeek(week.dataset.loadWeek);const mile=e.target.closest('[data-milestone]');if(mile){e.stopPropagation();openMilestone(mile.dataset.milestone)}const detail=e.target.closest('[data-detail-task]');if(detail)openTask(detail.dataset.detailTask);const drawer=e.target.closest('[data-drawer-task]');if(drawer){document.querySelector('#drawer-wrap').classList.remove('open');openTask(drawer.dataset.drawerTask)}});
-document.querySelector('#modal-close').onclick=()=>document.querySelector('#overlay').classList.remove('open');document.querySelector('#overlay').onclick=e=>{if(e.target.id==='overlay')e.currentTarget.classList.remove('open')};
-function openDrawer(){document.querySelector('#drawer-wrap').classList.add('open')}document.querySelector('#undated-open').onclick=openDrawer;document.querySelector('#undated-open-atlas').onclick=openDrawer;document.querySelector('#drawer-close').onclick=()=>document.querySelector('#drawer-wrap').classList.remove('open');document.querySelector('#drawer-wrap').onclick=e=>{if(e.target.id==='drawer-wrap')e.currentTarget.classList.remove('open')};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelector('#overlay').classList.remove('open');document.querySelector('#drawer-wrap').classList.remove('open')}});
+
+function updateMetrics(){
+  $("#m-total").textContent=tasks.length;
+  $("#m-p1").textContent=tasks.filter((task)=>task.priority==="P1").length;
+  $("#m-overdue").textContent=tasks.filter(isOverdue).length;
+  $("#m-red").textContent=tasks.filter((task)=>task.risk==="Rojo").length;
+  $("#m-undated").textContent=tasks.filter((task)=>!task.due).length;
+}
+function renderFocus(){
+  const top=[...tasks].sort((a,b)=>scoreTask(b)-scoreTask(a)||a.id-b.id).slice(0,3);
+  $("#focus").innerHTML=top.length ? top.map((task,index)=>`
+    <a class="focus-card" href="${esc(task.url)}" target="_blank" rel="noopener noreferrer">
+      <div class="focus-rank">${index+1}</div>
+      <div class="badges">
+        <span class="badge">${esc(task.priority)}</span>
+        <span class="badge ${riskClass(task.risk)}">${esc(task.risk)}</span>
+        <span class="badge">${esc(task.status)}</span>
+      </div>
+      <h3>#${task.id} · ${esc(task.title)}</h3>
+      <p>${esc(task.next)}</p>
+    </a>`).join("") : '<p style="color:var(--muted)">No hay tareas abiertas.</p>';
+}
+function taskCard(task){
+  return `
+    <a class="task" data-task data-project="${esc(task.p)}" data-status="${esc(task.status)}" data-risk="${esc(task.risk)}"
+       data-search="${esc((task.title+" "+task.next+" "+projectName(task.p)).toLowerCase())}"
+       href="${esc(task.url)}" target="_blank" rel="noopener noreferrer">
+      <div class="num">#${task.id}</div>
+      <div>
+        <div class="badges">
+          <span class="badge">${esc(task.priority)}</span>
+          <span class="badge ${riskClass(task.risk)}">${esc(task.risk)}</span>
+          <span class="badge">${esc(task.status)}</span>
+        </div>
+        <h3>${esc(task.title)}</h3>
+        <p>${esc(task.next)}</p>
+      </div>
+      <div class="task-date ${isOverdue(task)?"overdue":""}">${esc(dueLabel(task))}</div>
+    </a>`;
+}
+function renderProjects(){
+  const grouped=PROJECTS.map((project)=>({...project,list:tasks.filter((task)=>task.p===project.id)})).filter((project)=>project.list.length);
+  $("#content").innerHTML=`<section class="projects">${grouped.map((project)=>`
+    <article class="panel project" data-project-card="${esc(project.id)}">
+      <div class="project-head"><h2>${esc(project.name)}</h2><span>${project.list.length} pendiente${project.list.length===1?"":"s"}</span></div>
+      <div class="tasks">${project.list.map(taskCard).join("")}</div>
+    </article>`).join("")}</section>`;
+}
+function populateFilters(){
+  const projectFilter=$("#project-filter");
+  const selectedProject=projectFilter.value;
+  projectFilter.innerHTML='<option value="">Todos los proyectos</option>'+PROJECTS.filter((project)=>tasks.some((task)=>task.p===project.id)).map((project)=>`<option value="${project.id}">${esc(project.name)}</option>`).join("");
+  projectFilter.value=selectedProject;
+
+  const statusFilter=$("#status-filter");
+  const selectedStatus=statusFilter.value;
+  statusFilter.innerHTML='<option value="">Todos los estados</option>'+[...new Set(tasks.map((task)=>task.status))].sort().map((status)=>`<option value="${esc(status)}">${esc(status)}</option>`).join("");
+  statusFilter.value=selectedStatus;
+
+  const riskFilter=$("#risk-filter");
+  const selectedRisk=riskFilter.value;
+  riskFilter.innerHTML='<option value="">Todos los riesgos</option>'+["Rojo","Amarillo","Verde"].filter((risk)=>tasks.some((task)=>task.risk===risk)).map((risk)=>`<option value="${risk}">${risk}</option>`).join("");
+  riskFilter.value=selectedRisk;
+}
+function applyFilters(){
+  const query=$("#search").value.trim().toLowerCase();
+  const project=$("#project-filter").value;
+  const status=$("#status-filter").value;
+  const risk=$("#risk-filter").value;
+  let visible=0;
+  document.querySelectorAll("[data-project-card]").forEach((card)=>{
+    let cardVisible=0;
+    card.querySelectorAll("[data-task]").forEach((task)=>{
+      const ok=(!query||task.dataset.search.includes(query))&&(!project||task.dataset.project===project)&&(!status||task.dataset.status===status)&&(!risk||task.dataset.risk===risk);
+      task.classList.toggle("hidden",!ok);
+      if(ok){cardVisible+=1;visible+=1}
+    });
+    card.classList.toggle("hidden",cardVisible===0);
+  });
+  $("#empty").style.display=visible ? "none" : "block";
+}
+function showError(message){
+  const banner=$("#error-banner");
+  banner.textContent=message;
+  banner.classList.add("show");
+}
+function clearError(){
+  $("#error-banner").classList.remove("show");
+}
+async function refresh(){
+  if(refreshing)return;
+  refreshing=true;
+  const button=$("#refresh");
+  button.disabled=true;
+  button.textContent="Actualizando…";
+  clearError();
+  try{
+    const issues=await fetchOpenIssues();
+    tasks=issues.map(normalizeIssue).sort((a,b)=>a.id-b.id);
+    updateMetrics();
+    renderFocus();
+    renderProjects();
+    populateFilters();
+    applyFilters();
+    const now=new Date();
+    $("#updated-at").textContent="Actualizado "+new Intl.DateTimeFormat("es-CL",{timeZone:TIME_ZONE,dateStyle:"medium",timeStyle:"short"}).format(now);
+    $("#rate-limit").textContent=rateRemaining ? `Consultas públicas restantes: ${rateRemaining}` : "";
+    $("#info-banner").classList.add("show");
+  }catch(error){
+    if(!tasks.length){
+      $("#content").innerHTML='<div class="panel loading">No fue posible cargar tareas.</div>';
+      ["#m-total","#m-p1","#m-overdue","#m-red","#m-undated"].forEach((selector)=>$(selector).textContent="—");
+      $("#focus").innerHTML='<p style="color:var(--muted)">Sin datos vigentes.</p>';
+    }
+    showError(error.message+" No se mostró ningún snapshot antiguo.");
+  }finally{
+    refreshing=false;
+    button.disabled=false;
+    button.textContent="Actualizar ahora";
+  }
+}
+
+$("#refresh").addEventListener("click",refresh);
+["#search","#project-filter","#status-filter","#risk-filter"].forEach((selector)=>{
+  $(selector).addEventListener(selector==="#search"?"input":"change",applyFilters);
+});
+$("#reset").addEventListener("click",()=>{
+  $("#search").value="";
+  $("#project-filter").value="";
+  $("#status-filter").value="";
+  $("#risk-filter").value="";
+  applyFilters();
+});
+
+refresh();
+setInterval(()=>{if(!document.hidden)refresh()},5*60*1000);
 </script>
-</body></html>
+</body>
+</html>
