@@ -18,7 +18,7 @@ Disparador:
 workflow_dispatch
 ```
 
-El workflow solo podrá ejecutarse desde la interfaz de GitHub Actions cuando el archivo exista en la rama por defecto.
+El workflow solo puede ejecutarse desde la interfaz de GitHub Actions cuando el archivo existe en la rama por defecto.
 
 ## Autenticación
 
@@ -47,13 +47,25 @@ Ejecución manual
 → node dashboard/predeploy.mjs
 → node --test dashboard/tests/*.test.mjs
 → git diff --check
-→ rama automation/dashboard-snapshot-<run_id>
+→ rama automation/dashboard-snapshot-<run_id>-<run_attempt>
 → commit solo de snapshot.json y snapshot.js
 → PR draft contra la rama por defecto
 → revisión humana
 ```
 
 El workflow no hace merge y no despliega Sites.
+
+## Ramas únicas en reintentos
+
+GitHub mantiene el mismo `GITHUB_RUN_ID` cuando se reejecuta un run. En cambio, `GITHUB_RUN_ATTEMPT` comienza en `1` y aumenta en cada reintento.
+
+Por eso el nombre de rama combina ambos valores:
+
+```text
+automation/dashboard-snapshot-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}
+```
+
+Esto evita que un reintento intente publicar sobre la rama creada por un intento anterior.
 
 ## Fallo seguro
 
@@ -75,19 +87,28 @@ Si los archivos generados son idénticos a los versionados, la ejecución termin
 
 En la operación habitual `generated_at` cambia, por lo que normalmente existirá un PR nuevo para revisión.
 
-## Requisito pendiente de verificación
+## Configuración requerida del repositorio
 
-La configuración del repositorio debe permitir que GitHub Actions cree pull requests. Si está deshabilitada, el paso `gh pr create` fallará de forma segura después de publicar la rama.
+La configuración del repositorio debe permitir que GitHub Actions cree pull requests. Si está deshabilitada, el paso `gh pr create` falla de forma segura después de publicar la rama.
 
-No modificar esa configuración sin autorización humana específica.
+Ruta de interfaz:
+
+```text
+Settings
+→ Actions
+→ General
+→ Workflow permissions
+→ Allow GitHub Actions to create and approve pull requests
+→ Save
+```
+
+No modificar esta configuración sin autorización humana específica.
 
 ## Uso futuro
 
-Una vez mergeados primero el PR #32 y después el PR de este workflow:
-
 1. abrir la pestaña **Actions** del repositorio;
 2. seleccionar **Refresh dashboard snapshot**;
-3. pulsar **Run workflow** sobre la rama por defecto;
+3. pulsar **Run workflow** sobre `main`;
 4. esperar que termine correctamente;
 5. revisar el PR draft creado;
 6. mergear el snapshot solo con autorización;
@@ -106,4 +127,3 @@ Una vez mergeados primero el PR #32 y después el PR de este workflow:
 - No lectura de GitHub Projects v2.
 - No PAT personal.
 - No secretos personalizados.
-- No ejecución del workflow durante esta propuesta.
