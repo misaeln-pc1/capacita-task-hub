@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          branch="automation/dashboard-snapshot-${GITHUB_RUN_ID}"
+          branch="automation/dashboard-snapshot-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
 
           git config user.name "github-actions[bot]"
