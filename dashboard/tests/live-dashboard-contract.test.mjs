@@ -106,13 +106,18 @@ test("interpreta formatos legacy sin confundir fechas contextuales", () => {
   const start = core.indexOf("const MONTHS=");
   const end = core.indexOf("const projectId=");
   assert.ok(start >= 0 && end > start);
-  const parser = core.slice(start, end) + "\nglobalThis.__parserTest={field,parseDate,dateFromBody};";
+  const parser = core.slice(start, end) + "\nglobalThis.__parserTest={field,parseDate,dateFromBody,milestoneDateFromBody};";
   const context = { Date, Intl, document:{querySelector(){return null}} };
   vm.createContext(context);
   vm.runInContext(parser, context);
-  const { field, parseDate, dateFromBody } = context.__parserTest;
+  const { field, parseDate, dateFromBody, milestoneDateFromBody } = context.__parserTest;
   const body = `## Clasificación\n- **Tipo:** Hito / tarea ejecutiva\n- **Fecha objetivo:** lunes 13 de julio de 2026.\n\n## Fechas\n- **Inicio del curso:** miércoles 15 de julio de 2026.`;
   assert.equal(field(body, ["Tipo"]), "Hito / tarea ejecutiva");
   assert.equal(parseDate(field(body, ["Fecha objetivo"])), "2026-07-13");
   assert.equal(dateFromBody(body, ["Fecha inicio","Fecha de inicio"], ["Fecha inicio"]), null);
+
+  const audit = `## Fecha\n\n- **Fecha de auditoría:** martes 11 de agosto de 2026\n- **Ciclo cubierto:** año 2025 hasta 2026`;
+  const preaudit = `## Fecha\n\n- **Fecha de preauditoría:** viernes 24 de julio de 2026`;
+  assert.equal(milestoneDateFromBody(audit), "2026-08-11");
+  assert.equal(milestoneDateFromBody(preaudit), "2026-07-24");
 });
