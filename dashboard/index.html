@@ -17,6 +17,7 @@ body{
   margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:radial-gradient(circle at 12% 0,#12324f 0,transparent 27%),var(--bg)
 }
+body.modal-open{overflow:hidden}
 button,input,select{font:inherit}
 button{cursor:pointer}
 a{color:inherit}
@@ -54,8 +55,11 @@ a{color:inherit}
 .section-head h2{margin:0;font-size:18px}
 .section-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
 .focus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
-.focus-card{position:relative;padding:16px;border:1px solid var(--line);border-radius:16px;background:#091827;text-decoration:none;transition:.18s transform,.18s border-color}
-.focus-card:hover{transform:translateY(-2px);border-color:var(--cyan)}
+.focus-card{
+  position:relative;padding:16px;border:1px solid var(--line);border-radius:16px;background:#091827;color:var(--text);
+  text-align:left;transition:.18s transform,.18s border-color;width:100%
+}
+.focus-card:hover,.focus-card:focus-visible{transform:translateY(-2px);border-color:var(--cyan);outline:none}
 .focus-rank{position:absolute;right:13px;top:12px;color:#173552;font-size:42px;font-weight:950;line-height:1}
 .focus-card h3{position:relative;margin:9px 45px 7px 0;font-size:15px}
 .focus-card p{position:relative;margin:0;color:var(--muted);font-size:12px;line-height:1.45}
@@ -74,8 +78,12 @@ a{color:inherit}
 .project h2{font-size:18px;margin:0}
 .project-head span{font-size:11px;color:var(--amber);text-align:right}
 .tasks{display:grid;gap:8px}
-.task{display:grid;grid-template-columns:48px 1fr auto;gap:11px;padding:12px;border:1px solid rgba(47,78,108,.72);border-radius:14px;background:rgba(5,15,27,.58);text-decoration:none;transition:.16s border-color,.16s transform}
-.task:hover{border-color:var(--cyan);transform:translateY(-1px)}
+.task{
+  display:grid;grid-template-columns:48px 1fr auto;gap:11px;padding:12px;border:1px solid rgba(47,78,108,.72);
+  border-radius:14px;background:rgba(5,15,27,.58);color:var(--text);text-align:left;width:100%;
+  transition:.16s border-color,.16s transform
+}
+.task:hover,.task:focus-visible{border-color:var(--cyan);transform:translateY(-1px);outline:none}
 .task.hidden{display:none}
 .num{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:#112c46;color:var(--cyan);font-weight:900}
 .task h3{font-size:14px;margin:5px 0 4px}
@@ -87,6 +95,33 @@ a{color:inherit}
 .spinner{width:30px;height:30px;border:3px solid #23435d;border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .foot{padding:14px 17px;color:var(--muted);font-size:11px;line-height:1.55;margin-top:15px}
+.modal-backdrop{
+  position:fixed;inset:0;display:none;place-items:center;padding:22px;background:rgba(1,7,13,.76);
+  backdrop-filter:blur(6px);z-index:1000
+}
+.modal-backdrop.open{display:grid}
+.modal{
+  width:min(820px,100%);max-height:min(820px,92vh);overflow:auto;padding:24px;border-radius:28px
+}
+.modal-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.modal-kicker{color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.modal-title{margin:7px 0 0;font-size:clamp(24px,3vw,34px);line-height:1.13;letter-spacing:-.025em}
+.modal-close{
+  flex:0 0 auto;width:48px;height:48px;border:0;border-radius:15px;background:#153650;color:var(--text);font-size:26px
+}
+.modal-close:hover,.modal-close:focus-visible{background:#1d4869;outline:2px solid var(--cyan);outline-offset:2px}
+.modal-badges{margin:18px 0}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.detail-cell{padding:15px;border:1px solid var(--line);border-radius:15px;background:#091827}
+.detail-cell.wide{grid-column:1/-1}
+.detail-cell small{display:block;color:var(--muted);margin-bottom:7px;font-size:12px}
+.detail-cell strong,.detail-cell span{font-size:16px;line-height:1.45}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;flex-wrap:wrap}
+.github-link{
+  display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:13px;
+  background:#153650;border:1px solid #3c6f91;color:var(--cyan);font-weight:850;text-decoration:none
+}
+.github-link:hover,.github-link:focus-visible{border-color:var(--cyan);outline:none}
 @media(max-width:1050px){
   .metrics{grid-template-columns:repeat(3,1fr)}
   .projects{grid-template-columns:1fr}
@@ -102,6 +137,10 @@ a{color:inherit}
   .task{grid-template-columns:42px 1fr}
   .num{width:42px;height:42px}
   .task-date{grid-column:2;text-align:left}
+  .modal-backdrop{padding:10px}
+  .modal{padding:18px;border-radius:20px}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-cell.wide{grid-column:auto}
 }
 </style>
 </head>
@@ -159,9 +198,32 @@ a{color:inherit}
   <footer class="panel foot">
     Fuente oficial: GitHub Issues de <strong>misaeln-pc1/capacita-task-hub</strong>.
     El dashboard consulta la API pública al abrirse, cada cinco minutos y al pulsar <strong>Actualizar ahora</strong>.
-    Crear, editar o cerrar una tarea no requiere regenerar archivos ni desplegar nuevamente el dashboard.
+    Pulsa cualquier tarjeta para ver su detalle; el enlace a GitHub queda dentro del modal.
   </footer>
 </main>
+
+<div class="modal-backdrop" id="task-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+  <article class="panel modal">
+    <header class="modal-head">
+      <div>
+        <div class="modal-kicker" id="modal-kicker">Tarea</div>
+        <h2 class="modal-title" id="modal-title"></h2>
+      </div>
+      <button class="modal-close" id="modal-close" type="button" aria-label="Cerrar detalle">×</button>
+    </header>
+    <div class="badges modal-badges" id="modal-badges"></div>
+    <div class="detail-grid">
+      <div class="detail-cell"><small>Proyecto</small><strong id="modal-project"></strong></div>
+      <div class="detail-cell"><small>Fecha objetivo</small><strong id="modal-date"></strong></div>
+      <div class="detail-cell"><small>Estado</small><strong id="modal-status"></strong></div>
+      <div class="detail-cell"><small>Prioridad y riesgo</small><strong id="modal-priority-risk"></strong></div>
+      <div class="detail-cell wide"><small>Siguiente acción</small><span id="modal-next"></span></div>
+    </div>
+    <div class="modal-actions">
+      <a class="github-link" id="modal-github" href="#" target="_blank" rel="noopener noreferrer">Abrir issue en GitHub ↗</a>
+    </div>
+  </article>
+</div>
 
 <script>
 "use strict";
@@ -185,6 +247,7 @@ const PROJECTS = [
 let tasks = [];
 let rateRemaining = null;
 let refreshing = false;
+let lastFocusedElement = null;
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
@@ -255,12 +318,9 @@ const normalizeIssue = (issue) => {
   const next=(section(body,"Siguiente acción") || section(body,"Acción siguiente") || section(body,"Siguiente paso") || "Revisar la issue y definir la siguiente acción.").replace(/\s+/g," ").trim();
   const due=parseDue(body);
   return {
-    id:issue.number,
-    p:projectId(issue),
+    id:issue.number,p:projectId(issue),
     title:issue.title.replace(/^(?:\[[^\]]+\]\s*)+/,"").trim(),
-    priority,risk,status,next,due,
-    url:issue.html_url,
-    updatedAt:issue.updated_at
+    priority,risk,status,next,due,url:issue.html_url,updatedAt:issue.updated_at
   };
 };
 const projectName = (id) => PROJECTS.find((project)=>project.id===id)?.name ?? "Otro";
@@ -293,10 +353,7 @@ async function fetchOpenIssues(){
     const url=`${API_BASE}?state=open&per_page=100&page=${page}&_=${Date.now()}`;
     const response=await fetch(url,{
       cache:"no-store",
-      headers:{
-        Accept:"application/vnd.github+json",
-        "X-GitHub-Api-Version":"2022-11-28"
-      }
+      headers:{Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}
     });
     rateRemaining=response.headers.get("x-ratelimit-remaining");
     if(!response.ok){
@@ -322,7 +379,7 @@ function updateMetrics(){
 function renderFocus(){
   const top=[...tasks].sort((a,b)=>scoreTask(b)-scoreTask(a)||a.id-b.id).slice(0,3);
   $("#focus").innerHTML=top.length ? top.map((task,index)=>`
-    <a class="focus-card" href="${esc(task.url)}" target="_blank" rel="noopener noreferrer">
+    <button class="focus-card" type="button" data-open-task="${task.id}">
       <div class="focus-rank">${index+1}</div>
       <div class="badges">
         <span class="badge">${esc(task.priority)}</span>
@@ -331,13 +388,13 @@ function renderFocus(){
       </div>
       <h3>#${task.id} · ${esc(task.title)}</h3>
       <p>${esc(task.next)}</p>
-    </a>`).join("") : '<p style="color:var(--muted)">No hay tareas abiertas.</p>';
+    </button>`).join("") : '<p style="color:var(--muted)">No hay tareas abiertas.</p>';
 }
 function taskCard(task){
   return `
-    <a class="task" data-task data-project="${esc(task.p)}" data-status="${esc(task.status)}" data-risk="${esc(task.risk)}"
-       data-search="${esc((task.title+" "+task.next+" "+projectName(task.p)).toLowerCase())}"
-       href="${esc(task.url)}" target="_blank" rel="noopener noreferrer">
+    <button class="task" type="button" data-task data-open-task="${task.id}" data-project="${esc(task.p)}"
+      data-status="${esc(task.status)}" data-risk="${esc(task.risk)}"
+      data-search="${esc((task.title+" "+task.next+" "+projectName(task.p)).toLowerCase())}">
       <div class="num">#${task.id}</div>
       <div>
         <div class="badges">
@@ -349,7 +406,7 @@ function taskCard(task){
         <p>${esc(task.next)}</p>
       </div>
       <div class="task-date ${isOverdue(task)?"overdue":""}">${esc(dueLabel(task))}</div>
-    </a>`;
+    </button>`;
 }
 function renderProjects(){
   const grouped=PROJECTS.map((project)=>({...project,list:tasks.filter((task)=>task.p===project.id)})).filter((project)=>project.list.length);
@@ -391,6 +448,38 @@ function applyFilters(){
     card.classList.toggle("hidden",cardVisible===0);
   });
   $("#empty").style.display=visible ? "none" : "block";
+}
+function openTaskModal(taskId){
+  const task=tasks.find((item)=>item.id===Number(taskId));
+  if(!task)return;
+  lastFocusedElement=document.activeElement;
+  $("#modal-kicker").textContent=`Tarea #${task.id}`;
+  $("#modal-title").textContent=task.title;
+  $("#modal-badges").innerHTML=`
+    <span class="badge">${esc(task.priority)}</span>
+    <span class="badge ${riskClass(task.risk)}">${esc(task.risk)}</span>
+    <span class="badge">${esc(task.status)}</span>
+    ${isOverdue(task)?'<span class="badge red">Vencida</span>':""}`;
+  $("#modal-project").textContent=projectName(task.p);
+  $("#modal-date").textContent=dueLabel(task);
+  $("#modal-status").textContent=task.status;
+  $("#modal-priority-risk").textContent=`${task.priority} · ${task.risk}`;
+  $("#modal-next").textContent=task.next;
+  $("#modal-github").href=task.url;
+  const modal=$("#task-modal");
+  modal.hidden=false;
+  modal.classList.add("open");
+  document.body.classList.add("modal-open");
+  $("#modal-close").focus();
+}
+function closeTaskModal(){
+  const modal=$("#task-modal");
+  if(!modal.classList.contains("open"))return;
+  modal.classList.remove("open");
+  modal.hidden=true;
+  document.body.classList.remove("modal-open");
+  if(lastFocusedElement instanceof HTMLElement)lastFocusedElement.focus();
+  lastFocusedElement=null;
 }
 function showError(message){
   const banner=$("#error-banner");
@@ -443,6 +532,17 @@ $("#reset").addEventListener("click",()=>{
   $("#status-filter").value="";
   $("#risk-filter").value="";
   applyFilters();
+});
+document.addEventListener("click",(event)=>{
+  const trigger=event.target.closest("[data-open-task]");
+  if(trigger)openTaskModal(trigger.dataset.openTask);
+});
+$("#modal-close").addEventListener("click",closeTaskModal);
+$("#task-modal").addEventListener("click",(event)=>{
+  if(event.target.id==="task-modal")closeTaskModal();
+});
+document.addEventListener("keydown",(event)=>{
+  if(event.key==="Escape")closeTaskModal();
 });
 
 refresh();
