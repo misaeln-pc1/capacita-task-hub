@@ -14,48 +14,63 @@ function taskCard(task){
     <div class="task-dates ${isOverdue(task)?"overdue":""}">${esc(periodLabel(task))}<br>${esc(projectName(task.project))}</div>
   </button>`;
 }
+const weekNumber=(key)=>Number(key.slice(-2));
+const weekTitle=(key)=>`Week ${weekNumber(key)}`;
+function loadTone(count,maxLoad,totalLoad){
+  if(count<=2)return "load-green";
+  const share=totalLoad?count/totalLoad:0;
+  if(count===maxLoad&&(count>=5||share>=0.45))return "load-red";
+  return "load-orange";
+}
 function renderMain(){
   const weeks=allWeekKeys();
-  const maxLoad=Math.max(1,...weeks.map((key)=>workTasksInWeek(key).length));
+  const milestoneWeeks=weeks.filter((key)=>milestonesInWeek(key).length>0);
+  const loadWeeks=weeks.filter((key)=>workTasksInWeek(key).length>0);
+  const counts=loadWeeks.map((key)=>workTasksInWeek(key).length);
+  const maxLoad=Math.max(1,...counts);
+  const totalLoad=counts.reduce((sum,count)=>sum+count,0);
   const undated=tasks.filter((task)=>!task.start&&!task.end);
   const milestoneCount=tasks.filter((task)=>task.isMilestone).length;
   $("#view").innerHTML=`
     <section class="panel section">
       <div class="section-head">
-        <div><h2>Hitos por semana ISO</h2><p>Fechas críticas y entregas oficiales. Cada marcador abre su ficha interna.</p></div>
+        <div><h2>Hitos por semana</h2><p>Cronología de entregas y fechas críticas. Pulsa una semana para abrir todas sus tareas y ver el hito marcado.</p></div>
         <div class="legend">Semana actual: <strong>${currentWeek()}</strong></div>
       </div>
       <div class="week-scroll">
-        <div class="week-grid">${weeks.map((key)=>{
+        ${milestoneWeeks.length?`<div class="week-grid milestone-week-grid">${milestoneWeeks.map((key)=>{
           const info=weekInfo(key),items=milestonesInWeek(key);
-          return `<article class="week-column ${key===currentWeek()?"current":""}">
-            <div class="week-head"><span class="week-code">${key}</span><span class="week-range">${esc(info.range)}</span></div>
-            <div class="milestones">${items.length?items.map((task)=>`<button class="milestone" type="button" data-task-id="${task.id}">#${task.id} · ${esc(task.title)}</button>`).join(""):'<div class="no-items">Sin hitos</div>'}</div>
-          </article>`;
-        }).join("")}</div>
+          return `<button class="milestone-week ${key===currentWeek()?"current":""}" type="button" data-week="${key}">
+            <div class="week-head"><span><strong class="week-title">${weekTitle(key)}</strong><small class="week-code">${key}</small></span><span class="week-range">${esc(info.range)}</span></div>
+            <div class="milestone-count"><strong>${items.length}</strong> hito${items.length===1?"":"s"}</div>
+            <div class="milestone-preview">${items.map((task)=>`<span><i></i>${esc(task.title)}</span>`).join("")}</div>
+            <div class="week-open">Abrir semana →</div>
+          </button>`;
+        }).join("")}</div>`:'<div class="empty">No hay hitos con fecha.</div>'}
       </div>
     </section>
 
     <section class="panel section">
       <div class="section-head">
-        <div><h2>Carga de tareas por semana</h2><p>La intensidad aumenta con la cantidad de tareas activas. Las tareas de varias semanas cuentan en cada semana que atraviesan.</p></div>
-        <div class="legend"><span>Menor</span><span class="legend-scale"><i style="background:#263d50"></i><i style="background:#1b3448"></i><i style="background:#11263a"></i><i style="background:#0b1b2d"></i></span><span>Mayor</span></div>
+        <div><h2>Carga de tareas por semana</h2><p>Solo se muestran semanas con trabajo. Verde: 1–2 tareas; naranja: carga media; rojo: concentración alta.</p></div>
+        <div class="legend"><span class="legend-chip green">1–2</span><span class="legend-chip orange">Media</span><span class="legend-chip red">Alta</span></div>
       </div>
       <div class="week-scroll">
-        <div class="load-grid">${weeks.map((key)=>{
-          const info=weekInfo(key),count=workTasksInWeek(key).length,hitos=milestonesInWeek(key).length,ratio=count/maxLoad,lightness=(32-ratio*15).toFixed(1)+"%";
-          return `<button class="load-week ${count===0?"low":""} ${key===currentWeek()?"current":""}" style="--ratio:${ratio.toFixed(3)};--lightness:${lightness}" type="button" data-week="${key}">
-            <div><span class="week-code">${key}</span><div><strong>${count}</strong> tarea${count===1?"":"s"}</div></div>
+        ${loadWeeks.length?`<div class="load-grid">${loadWeeks.map((key)=>{
+          const info=weekInfo(key),count=workTasksInWeek(key).length,hitos=milestonesInWeek(key).length,tone=loadTone(count,maxLoad,totalLoad);
+          return `<button class="load-week ${tone} ${key===currentWeek()?"current":""}" type="button" data-week="${key}">
+            <div class="week-head"><span><strong class="week-title">${weekTitle(key)}</strong><small class="week-code">${key}</small></span><span class="load-level">${tone==="load-red"?"Alta":tone==="load-orange"?"Media":"Baja"}</span></div>
+            <div><strong>${count}</strong> tarea${count===1?"":"s"}</div>
             <div class="load-sub"><span>${esc(info.range)}</span><span>${hitos} hito${hitos===1?"":"s"}</span></div>
           </button>`;
-        }).join("")}</div>
+        }).join("")}</div>`:'<div class="empty">No hay tareas fechadas.</div>'}
       </div>
     </section>
 
     <section class="summary-grid">
       <article class="panel summary"><small>Tareas abiertas</small><strong>${tasks.length}</strong></article>
       <article class="panel summary"><small>Hitos</small><strong>${milestoneCount}</strong></article>
-      <article class="panel summary"><small>Semanas visibles</small><strong>${weeks.length}</strong></article>
+      <article class="panel summary"><small>Semanas con carga</small><strong>${loadWeeks.length}</strong></article>
       <article class="panel summary"><small>Sin fecha</small><strong>${undated.length}</strong></article>
     </section>
 
