@@ -4,14 +4,16 @@ function badges(task){
     <span class="badge">${esc(task.priority)}</span>
     <span class="badge ${riskClass(task.risk)}">${esc(task.risk)}</span>
     <span class="badge">${esc(task.status)}</span>
+    ${isOverdue(task)?'<span class="badge red">Vencida</span>':""}
     ${task.isMilestone?'<span class="badge amber">Hito</span>':""}
   </div>`;
 }
 function taskCard(task){
-  return `<button class="task-card" type="button" data-task-id="${task.id}">
+  const overdue=isOverdue(task);
+  return `<button class="task-card ${overdue?"overdue":""}" type="button" data-task-id="${task.id}">
     <div class="task-num">#${task.id}</div>
     <div>${badges(task)}<h3>${esc(task.title)}</h3><p>${esc(task.next)}</p></div>
-    <div class="task-dates ${isOverdue(task)?"overdue":""}">${esc(periodLabel(task))}<br>${esc(projectName(task.project))}</div>
+    <div class="task-dates ${overdue?"overdue":""}">${esc(periodLabel(task))}<br>${esc(projectName(task.project))}</div>
   </button>`;
 }
 const weekNumber=(key)=>Number(key.slice(-2));
@@ -20,7 +22,8 @@ const visibleWeekKeys=()=>{
   const monday=weekMonday(currentWeek());
   return Array.from({length:5},(_,index)=>isoWeekKey(isoDate(addDays(monday,index*7))));
 };
-function loadTone(count,maxLoad,totalLoad){
+function loadTone(count,maxLoad,totalLoad,hasOverdue){
+  if(hasOverdue)return "load-red";
   if(count===0)return "load-empty";
   if(count<=2)return "load-green";
   const share=totalLoad?count/totalLoad:0;
@@ -29,7 +32,7 @@ function loadTone(count,maxLoad,totalLoad){
 }
 function milestoneBody(items){
   if(!items.length)return '<div class="week-empty-body" aria-hidden="true"></div>';
-  const preview=items.slice(0,3).map((task)=>`<span><i></i>${esc(task.title)}</span>`).join("");
+  const preview=items.slice(0,3).map((task)=>`<span class="${isOverdue(task)?"overdue-item":""}"><i></i>${esc(task.title)}</span>`).join("");
   const remainder=items.length>3?`<span class="week-more">+${items.length-3} más</span>`:"";
   return `<div class="milestone-count"><strong>${items.length}</strong> hito${items.length===1?"":"s"}</div>
     <div class="milestone-preview">${preview}${remainder}</div>`;
@@ -51,8 +54,8 @@ function renderMain(){
       <div class="section-head"><h2>Hitos por semana</h2></div>
       <div class="week-scroll">
         <div class="week-grid milestone-week-grid">${weeks.map((key)=>{
-          const info=weekInfo(key),items=milestonesInWeek(key);
-          return `<button class="milestone-week ${items.length?"":"week-empty"} ${key===currentWeek()?"current":""}" type="button" data-week="${key}">
+          const info=weekInfo(key),items=milestonesInWeek(key),hasOverdue=items.some((task)=>isOverdue(task));
+          return `<button class="milestone-week ${items.length?"":"week-empty"} ${hasOverdue?"has-overdue":""} ${key===currentWeek()?"current":""}" type="button" data-week="${key}">
             <div class="week-head"><strong class="week-title">${weekTitle(key)}</strong><span class="week-range">${esc(info.range)}</span></div>
             ${milestoneBody(items)}
           </button>`;
@@ -64,7 +67,7 @@ function renderMain(){
       <div class="section-head"><h2>Carga de tareas por semana</h2></div>
       <div class="week-scroll">
         <div class="load-grid">${weeks.map((key)=>{
-          const info=weekInfo(key),count=workTasksInWeek(key).length,tone=loadTone(count,maxLoad,totalLoad);
+          const info=weekInfo(key),items=workTasksInWeek(key),count=items.length,hasOverdue=items.some((task)=>isOverdue(task)),tone=loadTone(count,maxLoad,totalLoad,hasOverdue);
           return `<button class="load-week ${tone} ${key===currentWeek()?"current":""}" type="button" data-week="${key}">
             <div class="week-head"><strong class="week-title">${weekTitle(key)}</strong><span class="week-range">${esc(info.range)}</span></div>
             ${loadBody(count)}
