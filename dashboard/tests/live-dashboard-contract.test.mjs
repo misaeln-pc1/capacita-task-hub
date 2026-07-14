@@ -31,3 +31,20 @@ test("mantiene filtros operativos", () => {
     assert.match(html, new RegExp(`id="${id}"`));
   }
 });
+
+test("todas las tarjetas abren el modal de detalle", () => {
+  assert.match(html, /data-open-task="\$\{task\.id\}"/);
+  assert.match(html, /function openTaskModal\(taskId\)/);
+  assert.match(html, /closest\("\[data-open-task\]"\)/);
+  assert.doesNotMatch(html, /class="task"[^>]+href=/);
+  assert.doesNotMatch(html, /class="focus-card"[^>]+href=/);
+});
+
+test("el modal conserva acceso explícito a GitHub y cierre accesible", () => {
+  assert.match(html, /id="task-modal"/);
+  assert.match(html, /id="modal-github"/);
+  assert.match(html, /Abrir issue en GitHub/);
+  assert.match(html, /id="modal-close"/);
+  assert.match(html, /event\.key==="Escape"/);
+  assert.match(html, /event\.target\.id==="task-modal"/);
+});
