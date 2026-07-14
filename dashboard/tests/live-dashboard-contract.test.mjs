@@ -41,12 +41,28 @@ test("usa navegación interna y nunca envía una tarjeta a GitHub", () => {
   assert.doesNotMatch(html + script, /Abrir issue en GitHub|html_url|target="_blank"/);
 });
 
-test("contiene los dos bloques cronológicos solicitados", () => {
-  assert.match(views, /Hitos por semana ISO/);
-  assert.match(views, /Carga de tareas por semana/);
-  assert.match(views, /data-week="\$\{key\}"/);
-  assert.match(views, /data-task-id="\$\{task\.id\}"/);
-  assert.match(views, /Tareas sin fecha/);
+test("el bloque de hitos navega primero por semana", () => {
+  assert.match(home, /Hitos por semana/);
+  assert.match(home, /milestoneWeeks=weeks\.filter/);
+  assert.match(home, /class="milestone-week[^\n]+data-week="\$\{key\}"/);
+  assert.doesNotMatch(home, /class="milestone"[^\n]+data-task-id/);
+  assert.match(home, /Abrir semana/);
+});
+
+test("el bloque de carga omite semanas vacías y usa semáforo", () => {
+  assert.match(home, /loadWeeks=weeks\.filter\(\(key\)=>workTasksInWeek\(key\)\.length>0\)/);
+  assert.match(home, /if\(count<=2\)return "load-green"/);
+  for (const tone of ["load-green", "load-orange", "load-red"]) {
+    assert.match(home + cssViews, new RegExp(tone));
+  }
+  assert.match(home, /Verde: 1–2 tareas/);
+});
+
+test("la vista semanal presenta una lista cronológica única", () => {
+  assert.match(detail, /Tareas e hitos de la semana/);
+  assert.match(detail, /ordered\.map\(taskCard\)/);
+  assert.match(detail, /Number\(b\.isMilestone\)-Number\(a\.isMilestone\)/);
+  assert.doesNotMatch(detail, /<h2>Hitos<\/h2>[\s\S]*<h2>Tareas activas<\/h2>/);
 });
 
 test("la vista de tarea contiene campos operativos", () => {
