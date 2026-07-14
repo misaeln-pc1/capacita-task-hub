@@ -13,6 +13,10 @@
 .load-count{display:flex;align-items:end;gap:6px}
 .load-count strong{font-size:29px;line-height:1}
 .load-count span{font-size:11px;color:#e0e8ef;padding-bottom:2px}
+.milestone-week.has-overdue{background:linear-gradient(145deg,#521f2b,#241017);border-color:#d75069}
+.milestone-week.has-overdue .milestone-count{color:#ff9cb0}
+.milestone-preview span.overdue-item{color:#ffb5c2;font-weight:800}
+.milestone-preview span.overdue-item i{background:var(--red);box-shadow:0 0 0 4px rgba(255,114,141,.12)}
 .undated{
   display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;padding:11px 13px;border:1px solid #43576b;
   border-radius:13px;background:#0a1725;color:var(--text);text-align:left
@@ -36,6 +40,9 @@
   border-radius:15px;background:rgba(5,15,27,.64);color:var(--text);text-align:left
 }
 .task-card:hover,.task-card:focus-visible{border-color:var(--cyan);outline:none;transform:translateY(-1px)}
+.task-card.overdue{border-color:#a13b50;background:linear-gradient(145deg,rgba(73,21,33,.78),rgba(22,10,17,.84))}
+.task-card.overdue:hover,.task-card.overdue:focus-visible{border-color:var(--red)}
+.task-card.overdue .task-num{background:#4a1723;color:#ff9cb0}
 .task-num{display:grid;place-items:center;width:52px;height:52px;border-radius:13px;background:#112c46;color:var(--cyan);font-weight:950}
 .task-card h3{font-size:14px;margin:4px 0 5px}
 .task-card p{font-size:12px;color:var(--muted);margin:0;line-height:1.42}
@@ -48,6 +55,7 @@
 .badge.green{color:#90edc0;border-color:#2e6650}
 .detail-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:14px}
 .detail-main,.detail-side{padding:20px}
+.detail-main.detail-overdue{border-color:#a13b50;box-shadow:0 20px 55px rgba(94,18,36,.22)}
 .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
 .detail-cell{padding:15px;border:1px solid var(--line);border-radius:15px;background:#091827}
 .detail-cell.wide{grid-column:1/-1}
@@ -61,6 +69,8 @@
 .side-item{padding:14px;border:1px solid var(--line);border-radius:14px;background:#091827}
 .side-item small{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}
 .side-item strong{font-size:14px;line-height:1.4}
+.side-item.overdue-note{border-color:#a13b50;background:#2a1018}
+.side-item.overdue-note strong{color:#ff9cb0}
 .loading{display:grid;place-items:center;min-height:260px;color:var(--muted)}
 .spinner{width:30px;height:30px;border:3px solid #23435d;border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
