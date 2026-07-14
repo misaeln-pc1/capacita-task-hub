@@ -2,7 +2,7 @@
 
 ## Estado
 
-Piloto preparado en `feature/dashboard-live-public-api`.
+Implementación vigente en GitHub Pages con lectura directa de GitHub Issues.
 
 ## Objetivo
 
@@ -29,6 +29,10 @@ GET https://api.github.com/repos/misaeln-pc1/capacita-task-hub/issues?state=open
 - botón `Actualizar ahora`;
 - actualización automática cada cinco minutos mientras la pestaña está visible;
 - las issues cerradas dejan de aparecer en la siguiente consulta;
+- cualquier tarjeta —incluido Foco inmediato— abre un modal de detalle;
+- el modal muestra proyecto, fecha objetivo, estado, prioridad, riesgo y siguiente acción;
+- el enlace `Abrir issue en GitHub` queda como acción secundaria dentro del modal;
+- el modal se cierra con botón, clic fuera o tecla `Escape`;
 - no se usa `snapshot.js`;
 - no se usa token, secreto, Worker ni backend;
 - no se escribe en GitHub desde el dashboard.
@@ -65,4 +69,4 @@ Si la exposición pública resulta inaceptable, volver el repositorio a privado 
 node --test dashboard/tests/live-dashboard-contract.test.mjs
 ```
 
-La prueba verifica consulta pública, ausencia de snapshots y credenciales, actualización manual/periódica, fallo visible y filtros.
+La prueba verifica consulta pública, ausencia de snapshots y credenciales, actualización manual/periódica, fallo visible, filtros y apertura accesible del modal para todas las tarjetas.
