@@ -13,7 +13,6 @@ async function refresh(){
     const now=new Date();
     $("#updated-at").textContent="Actualizado "+new Intl.DateTimeFormat("es-CL",{timeZone:TIME_ZONE,dateStyle:"medium",timeStyle:"short"}).format(now);
     $("#rate-limit").textContent=rateRemaining?`Consultas públicas restantes: ${rateRemaining}`:"";
-    $("#info-banner").classList.add("show");
   }catch(error){
     if(!tasks.length)$("#view").innerHTML='<div class="panel loading">No fue posible cargar tareas.</div>';
     showError(error.message+" No se mostró información antigua.");

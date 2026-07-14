@@ -33,6 +33,17 @@ test("carga recursos locales del dashboard semanal", () => {
   assert.ok(script.length > 15000);
 });
 
+test("elimina textos explicativos para compactar la portada", () => {
+  for (const text of [
+    "Cronología de hitos y carga de trabajo por semanas ISO",
+    "Solo lectura. Las tareas se actualizan desde la fuente oficial",
+    "Cronología de entregas y fechas críticas",
+    "Solo se muestran semanas con trabajo"
+  ]) assert.doesNotMatch(html + home, new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")));
+  assert.match(home, /<h2>Hitos por semana<\/h2>/);
+  assert.match(home, /<h2>Carga de tareas por semana<\/h2>/);
+});
+
 test("usa navegación interna y nunca envía una tarjeta a GitHub", () => {
   assert.match(app, /routeTo\(`task\/\$\{task\.dataset\.taskId\}`\)/);
   assert.match(app, /routeTo\(`week\/\$\{week\.dataset\.week\}`\)/);
@@ -41,21 +52,28 @@ test("usa navegación interna y nunca envía una tarjeta a GitHub", () => {
   assert.doesNotMatch(html + script, /Abrir issue en GitHub|html_url|target="_blank"/);
 });
 
-test("el bloque de hitos navega primero por semana", () => {
-  assert.match(home, /Hitos por semana/);
-  assert.match(home, /milestoneWeeks=weeks\.filter/);
-  assert.match(home, /class="milestone-week[^\n]+data-week="\$\{key\}"/);
-  assert.doesNotMatch(home, /class="milestone"[^\n]+data-task-id/);
-  assert.match(home, /Abrir semana/);
+test("muestra siempre la semana actual y las cuatro siguientes", () => {
+  assert.match(home, /const visibleWeekKeys=\(\)=>/);
+  assert.match(home, /Array\.from\(\{length:5\}/);
+  assert.match(home, /const weeks=visibleWeekKeys\(\)/);
+  assert.match(cssBase, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+  assert.match(cssViews, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
 });
 
-test("el bloque de carga omite semanas vacías y usa semáforo", () => {
-  assert.match(home, /loadWeeks=weeks\.filter\(\(key\)=>workTasksInWeek\(key\)\.length>0\)/);
+test("los dos bloques conservan también semanas vacías", () => {
+  assert.match(home, /weeks\.map\(\(key\)=>/);
+  assert.doesNotMatch(home, /milestoneWeeks=weeks\.filter/);
+  assert.doesNotMatch(home, /loadWeeks=weeks\.filter/);
+  assert.match(home, /week-empty-body/);
+  assert.match(home + cssViews, /load-empty/);
+});
+
+test("el bloque de carga mantiene semáforo cuando existen tareas", () => {
+  assert.match(home, /if\(count===0\)return "load-empty"/);
   assert.match(home, /if\(count<=2\)return "load-green"/);
-  for (const tone of ["load-green", "load-orange", "load-red"]) {
+  for (const tone of ["load-empty", "load-green", "load-orange", "load-red"]) {
     assert.match(home + cssViews, new RegExp(tone));
   }
-  assert.match(home, /Verde: 1–2 tareas/);
 });
 
 test("la vista semanal presenta una lista cronológica única", () => {
@@ -76,6 +94,7 @@ test("mantiene actualización manual y periódica", () => {
   assert.match(html, /id="refresh"/);
   assert.match(app, /addEventListener\("click",refresh\)/);
   assert.match(app, /setInterval\(\(\)=>\{if\(!document\.hidden\)refresh\(\)\},5\*60\*1000\)/);
+  assert.doesNotMatch(app, /info-banner/);
 });
 
 test("calcula semanas ISO 8601 y rangos lunes-domingo", () => {
@@ -102,7 +121,7 @@ test("calcula semanas ISO 8601 y rangos lunes-domingo", () => {
   );
 });
 
-test("interpreta formatos legacy sin confundir fechas contextuales", () => {
+test("interpreta formatos legacy y fechas específicas de hitos", () => {
   const start = core.indexOf("const MONTHS=");
   const end = core.indexOf("const projectId=");
   assert.ok(start >= 0 && end > start);
