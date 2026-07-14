@@ -2,23 +2,22 @@
 function renderWeek(key){
   const info=weekInfo(key);
   if(!info){renderNotFound("Semana no válida.");return}
-  const all=tasksInWeek(key);
-  const milestones=all.filter((task)=>task.isMilestone);
-  const work=all.filter((task)=>!task.isMilestone);
+  const ordered=[...tasksInWeek(key)].sort((a,b)=>{
+    const aDate=a.start||a.end||"9999-12-31";
+    const bDate=b.start||b.end||"9999-12-31";
+    return aDate.localeCompare(bDate)||Number(b.isMilestone)-Number(a.isMilestone)||a.id-b.id;
+  });
+  const milestoneCount=ordered.filter((task)=>task.isMilestone).length;
   $("#view").innerHTML=`
-    <div class="breadcrumb"><button type="button" data-home>Planificador</button><span>/</span><span>${key}</span></div>
+    <div class="breadcrumb"><button type="button" data-home>Planificador</button><span>/</span><span>${weekTitle(key)}</span></div>
     <section class="panel page-head">
-      <div class="page-kicker">Semana ISO</div>
-      <h2 class="page-title">${key}</h2>
-      <div class="page-subtitle">${esc(info.range)} · ${work.length} tarea${work.length===1?"":"s"} · ${milestones.length} hito${milestones.length===1?"":"s"}</div>
+      <div class="page-kicker">Semana ISO · ${key}</div>
+      <h2 class="page-title">${weekTitle(key)}</h2>
+      <div class="page-subtitle">${esc(info.range)} · ${ordered.length} elemento${ordered.length===1?"":"s"} · ${milestoneCount} hito${milestoneCount===1?"":"s"}</div>
     </section>
     <section class="panel section">
-      <div class="section-head"><div><h2>Hitos</h2><p>Fechas críticas dentro de la semana.</p></div></div>
-      <div class="task-list">${milestones.length?milestones.map(taskCard).join(""):'<div class="empty">No hay hitos en esta semana.</div>'}</div>
-    </section>
-    <section class="panel section">
-      <div class="section-head"><div><h2>Tareas activas</h2><p>Incluye tareas cuya fecha o intervalo toca esta semana.</p></div></div>
-      <div class="task-list">${work.length?work.map(taskCard).join(""):'<div class="empty">No hay tareas activas en esta semana.</div>'}</div>
+      <div class="section-head"><div><h2>Tareas e hitos de la semana</h2><p>Secuencia cronológica única. Los hitos aparecen identificados dentro del mismo listado.</p></div></div>
+      <div class="task-list">${ordered.length?ordered.map(taskCard).join(""):'<div class="empty">No hay tareas ni hitos en esta semana.</div>'}</div>
     </section>`;
 }
 function renderUndated(){
@@ -38,7 +37,7 @@ function renderTask(id){
   const weeks=weeksForTask(task);
   const detailHtml=task.details.map((item)=>`<section class="detail-section"><h3>${esc(item.name)}</h3><p class="text-block">${esc(clean(item.text))}</p></section>`).join("");
   $("#view").innerHTML=`
-    <div class="breadcrumb"><button type="button" data-home>Planificador</button><span>/</span><span>Tarea #${task.id}</span></div>
+    <div class="breadcrumb"><button type="button" data-home>Planificador</button><span>/</span><span>${task.isMilestone?"Hito":"Tarea"} #${task.id}</span></div>
     <section class="panel page-head">
       <div class="page-kicker">${task.isMilestone?"Hito":"Tarea"} #${task.id}</div>
       <h2 class="page-title">${esc(task.title)}</h2>
