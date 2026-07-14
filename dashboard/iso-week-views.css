@@ -1,16 +1,22 @@
-.load-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(160px,1fr);gap:10px;min-width:max-content}
+.load-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(190px,1fr);gap:10px;min-width:max-content}
 .load-week{
-  --ratio:0;min-height:132px;border:1px solid rgba(76,126,158,.75);border-radius:16px;color:var(--text);
+  min-height:145px;border:1px solid rgba(76,126,158,.75);border-radius:16px;color:var(--text);
   padding:14px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:12px;
-  background:hsl(207 48% var(--lightness,32%));transition:.16s transform,.16s border-color
+  transition:.16s transform,.16s border-color,.16s filter
 }
-.load-week.low{background:#263d50}
-.load-week:hover,.load-week:focus-visible{transform:translateY(-2px);border-color:var(--cyan);outline:none}
-.load-week.current{box-shadow:inset 0 0 0 1px var(--cyan)}
-.load-week strong{font-size:30px;line-height:1}
+.load-week:hover,.load-week:focus-visible{transform:translateY(-2px);border-color:#eaf7ff;outline:none;filter:brightness(1.08)}
+.load-week.current{box-shadow:inset 0 0 0 2px var(--cyan)}
+.load-week.load-green{background:linear-gradient(145deg,#173f32,#0b241c);border-color:#3d8d6f}
+.load-week.load-orange{background:linear-gradient(145deg,#68421c,#2a1c0e);border-color:#c98132}
+.load-week.load-red{background:linear-gradient(145deg,#702b3a,#2d1018);border-color:#d75069}
+.load-week>div>strong{font-size:34px;line-height:1}
 .load-week small{color:#ccdae6;font-size:10px;line-height:1.35}
-.load-week .week-code{color:#e7f5ff}
-.load-sub{display:flex;justify-content:space-between;gap:8px;color:#d6e4ef;font-size:10px}
+.load-level{border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px 8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.load-sub{display:flex;justify-content:space-between;gap:8px;color:#e0e8ef;font-size:10px}
+.legend-chip{border:1px solid;border-radius:999px;padding:4px 8px;font-weight:850}
+.legend-chip.green{background:#173f32;border-color:#3d8d6f;color:#9cf1c9}
+.legend-chip.orange{background:#68421c;border-color:#c98132;color:#ffd29d}
+.legend-chip.red{background:#702b3a;border-color:#d75069;color:#ffb5c2}
 .undated{
   display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;padding:16px;border:1px solid #43576b;
   border-radius:15px;background:#0a1725;color:var(--text);text-align:left
@@ -72,6 +78,7 @@
   .topbar{align-items:flex-start;flex-direction:column}
   .actions{justify-content:flex-start}.meta{text-align:left}
   .section-head{flex-direction:column}
+  .legend{white-space:normal;flex-wrap:wrap}
   .summary-grid{grid-template-columns:1fr 1fr}
   .task-card{grid-template-columns:44px 1fr}
   .task-num{width:44px;height:44px}
