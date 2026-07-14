@@ -67,6 +67,11 @@ const dateFromBody=(body,labels,sectionNames=[])=>{
   }
   return null;
 };
+const milestoneDateFromBody=(body)=>dateFromBody(
+  body,
+  ["Fecha de entrega","Fecha de auditoría","Fecha auditoría","Fecha de preauditoría","Fecha preauditoría","Fecha"],
+  ["Fecha","Fecha límite","Fecha objetivo","Fechas"]
+);
 const projectId=(issue)=>{
   const body=issue.body??"";
   const text=(issue.title+"\n"+body).toLowerCase();
@@ -104,11 +109,12 @@ const normalizeIssue=(issue)=>{
   const objective=clean(section(body,"Objetivo")||section(body,"Problema / contexto")||section(body,"Tarea ejecutable")||"");
   let start=dateFromBody(body,["Fecha inicio","Fecha de inicio"],["Fecha inicio","Fecha de inicio"]);
   let end=dateFromBody(body,["Fecha término","Fecha de término","Fecha fin","Fecha límite","Fecha objetivo"],["Fecha término","Fecha de término","Fecha límite","Fecha objetivo","Fechas"]);
+  if(!end&&isMilestone)end=milestoneDateFromBody(body);
   if(!end)end=parseDate(issue.title);
   if(!start&&end)start=end;
   if(start&&!end)end=start;
   if(start&&end&&start>end)start=end;
-  const detailSections=["Fechas","Contexto","Alcance","Alcance mínimo","Detalle","Qué hacer","Evidencia esperada","Definition of Done"];
+  const detailSections=["Fechas","Fecha","Contexto","Alcance","Alcance mínimo","Detalle","Qué hacer","Evidencia esperada","Definition of Done"];
   const details=detailSections.map((name)=>({name,text:section(body,name)})).filter((item)=>item.text);
   return {
     id:issue.number,title:issue.title.replace(/^(?:\[[^\]]+\]\s*)+/,"").trim(),
