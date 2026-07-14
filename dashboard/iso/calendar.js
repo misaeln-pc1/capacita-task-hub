@@ -34,7 +34,12 @@ const weekInfo=(key)=>{
     new Intl.DateTimeFormat("es-CL",{timeZone:"UTC",day:"2-digit",month:"short",year:"numeric"}).format(sunday);
   return {key,monday:isoDate(monday),sunday:isoDate(sunday),range};
 };
-const weeksForTask=(task)=>{
+const todayLocal=()=>{
+  const parts=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:TIME_ZONE,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).filter((part)=>part.type!=="literal").map((part)=>[part.type,part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+const currentWeek=(today=todayLocal())=>isoWeekKey(today);
+const scheduledWeeksForTask=(task)=>{
   if(!task.start||!task.end)return [];
   let cursor=weekMonday(isoWeekKey(task.start));
   const last=weekMonday(isoWeekKey(task.end));
@@ -45,18 +50,21 @@ const weeksForTask=(task)=>{
   }
   return keys;
 };
-const todayLocal=()=>{
-  const parts=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:TIME_ZONE,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).filter((part)=>part.type!=="literal").map((part)=>[part.type,part.value]));
-  return `${parts.year}-${parts.month}-${parts.day}`;
+const isOverdue=(task,today=todayLocal())=>Boolean(task.end&&task.end<today);
+const weeksForTask=(task,today=todayLocal())=>{
+  const keys=scheduledWeeksForTask(task);
+  if(isOverdue(task,today)){
+    const carryWeek=currentWeek(today);
+    if(!keys.includes(carryWeek))keys.push(carryWeek);
+  }
+  return keys.sort();
 };
-const currentWeek=()=>isoWeekKey(todayLocal());
 const dateLabel=(iso)=>iso?new Intl.DateTimeFormat("es-CL",{timeZone:"UTC",day:"2-digit",month:"short",year:"numeric"}).format(dateUTC(iso)):"Sin fecha";
 const periodLabel=(task)=>{
   if(!task.start&&!task.end)return "Sin fecha";
   if(task.start===task.end)return dateLabel(task.start);
   return `${dateLabel(task.start)} → ${dateLabel(task.end)}`;
 };
-const isOverdue=(task)=>Boolean(task.end&&task.end<todayLocal());
 const routeTo=(path)=>{
   const target="#/"+path.replace(/^\/+/,"");
   if(location.hash===target)renderRoute();

@@ -68,7 +68,8 @@ test("los dos bloques conservan también semanas vacías", () => {
   assert.match(home + cssViews, /load-empty/);
 });
 
-test("el bloque de carga mantiene semáforo cuando existen tareas", () => {
+test("el bloque de carga mantiene semáforo y prioriza vencidas en rojo", () => {
+  assert.match(home, /if\(hasOverdue\)return "load-red"/);
   assert.match(home, /if\(count===0\)return "load-empty"/);
   assert.match(home, /if\(count<=2\)return "load-green"/);
   for (const tone of ["load-empty", "load-green", "load-orange", "load-red"]) {
@@ -76,9 +77,21 @@ test("el bloque de carga mantiene semáforo cuando existen tareas", () => {
   }
 });
 
-test("la vista semanal presenta una lista cronológica única", () => {
+test("marca tareas e hitos vencidos en rojo", () => {
+  assert.match(home, /badge red">Vencida/);
+  assert.match(home, /task-card \$\{overdue\?"overdue"/);
+  assert.match(home, /has-overdue/);
+  assert.match(home, /overdue-item/);
+  assert.match(cssViews, /task-card\.overdue/);
+  assert.match(cssViews, /milestone-week\.has-overdue/);
+  assert.match(detail, /detail-overdue/);
+  assert.match(detail, /Vencida y arrastrada a la Week actual/);
+});
+
+test("la vista semanal presenta una lista cronológica única y vencidas primero", () => {
   assert.match(detail, /Tareas e hitos de la semana/);
   assert.match(detail, /ordered\.map\(taskCard\)/);
+  assert.match(detail, /Number\(isOverdue\(b\)\)-Number\(isOverdue\(a\)\)/);
   assert.match(detail, /Number\(b\.isMilestone\)-Number\(a\.isMilestone\)/);
   assert.doesNotMatch(detail, /<h2>Hitos<\/h2>[\s\S]*<h2>Tareas activas<\/h2>/);
 });
@@ -99,26 +112,37 @@ test("mantiene actualización manual y periódica", () => {
 
 test("calcula semanas ISO 8601 y rangos lunes-domingo", () => {
   const start = calendar.indexOf("const dateUTC=");
-  const end = calendar.indexOf("const isOverdue=");
+  const end = calendar.indexOf("const routeTo=");
   assert.ok(start >= 0 && end > start);
-  const pure = calendar.slice(start, end) + "\nglobalThis.__atlasTest={isoWeekKey,weekInfo,weeksForTask};";
+  const pure = calendar.slice(start, end) + "\nglobalThis.__atlasTest={isoWeekKey,weekInfo,scheduledWeeksForTask,weeksForTask,isOverdue,currentWeek};";
   const context = { Date, Intl };
   vm.createContext(context);
   vm.runInContext(pure, context);
-  const { isoWeekKey, weekInfo, weeksForTask } = context.__atlasTest;
+  const { isoWeekKey, weekInfo, scheduledWeeksForTask, weeksForTask, isOverdue, currentWeek } = context.__atlasTest;
 
   assert.equal(isoWeekKey("2025-12-29"), "2026-W01");
   assert.equal(isoWeekKey("2026-07-13"), "2026-W29");
   assert.equal(isoWeekKey("2026-07-19"), "2026-W29");
+  assert.equal(currentWeek("2026-07-14"), "2026-W29");
   const info = JSON.parse(JSON.stringify(weekInfo("2026-W29")));
   assert.equal(info.key, "2026-W29");
   assert.equal(info.monday, "2026-07-13");
   assert.equal(info.sunday, "2026-07-19");
   assert.match(info.range, /13.*jul.*19.*jul.*2026/i);
   assert.deepEqual(
-    Array.from(weeksForTask({start:"2026-07-13",end:"2026-07-27"})),
+    Array.from(weeksForTask({start:"2026-07-13",end:"2026-07-27"},"2026-07-14")),
     ["2026-W29","2026-W30","2026-W31"]
   );
+
+  const overdue={start:"2026-07-05",end:"2026-07-05"};
+  assert.equal(isOverdue(overdue,"2026-07-14"), true);
+  assert.deepEqual(Array.from(scheduledWeeksForTask(overdue)), ["2026-W27"]);
+  assert.deepEqual(Array.from(weeksForTask(overdue,"2026-07-14")), ["2026-W27","2026-W29"]);
+  assert.equal(weeksForTask(overdue,"2026-07-14").includes("2026-W28"), false);
+
+  const reprogrammed={start:"2026-07-21",end:"2026-07-21"};
+  assert.equal(isOverdue(reprogrammed,"2026-07-14"), false);
+  assert.deepEqual(Array.from(weeksForTask(reprogrammed,"2026-07-14")), ["2026-W30"]);
 });
 
 test("interpreta formatos legacy y fechas específicas de hitos", () => {
