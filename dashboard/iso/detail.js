@@ -3,6 +3,8 @@ function renderWeek(key){
   const info=weekInfo(key);
   if(!info){renderNotFound("Semana no válida.");return}
   const ordered=[...tasksInWeek(key)].sort((a,b)=>{
+    const overdueOrder=Number(isOverdue(b))-Number(isOverdue(a));
+    if(overdueOrder)return overdueOrder;
     const aDate=a.start||a.end||"9999-12-31";
     const bDate=b.start||b.end||"9999-12-31";
     return aDate.localeCompare(bDate)||Number(b.isMilestone)-Number(a.isMilestone)||a.id-b.id;
@@ -44,7 +46,7 @@ function renderTask(id){
       <div class="page-subtitle">${esc(projectName(task.project))} · Actualizada ${esc(new Intl.DateTimeFormat("es-CL",{timeZone:TIME_ZONE,dateStyle:"medium",timeStyle:"short"}).format(new Date(task.updatedAt)))}</div>
     </section>
     <section class="detail-layout">
-      <article class="panel detail-main">
+      <article class="panel detail-main ${isOverdue(task)?"detail-overdue":""}">
         ${badges(task)}
         <div class="detail-grid" style="margin-top:16px">
           <div class="detail-cell"><small>Fecha de inicio</small><strong>${esc(dateLabel(task.start))}</strong></div>
@@ -63,6 +65,7 @@ function renderTask(id){
           <div class="side-item"><small>Prioridad / riesgo</small><strong>${esc(task.priority)} · ${esc(task.risk)}</strong></div>
           <div class="side-item"><small>Estimación</small><strong>${esc(task.estimate)}</strong></div>
           <div class="side-item"><small>Semanas ISO</small><strong>${weeks.length?weeks.join(", "):"Sin fecha"}</strong></div>
+          ${isOverdue(task)?'<div class="side-item overdue-note"><small>Situación</small><strong>Vencida y arrastrada a la Week actual</strong></div>':""}
         </div>
       </aside>
     </section>`;
