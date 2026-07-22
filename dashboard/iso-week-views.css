@@ -71,6 +71,22 @@
 .side-item strong{font-size:14px;line-height:1.4}
 .side-item.overdue-note{border-color:#a13b50;background:#2a1018}
 .side-item.overdue-note strong{color:#ff9cb0}
+.close-panel{margin-top:14px;padding:15px;border:1px solid #3c536a;border-radius:15px;background:#081522}
+.close-panel h3{margin:0 0 7px;color:var(--cyan);font-size:14px}
+.close-panel p{margin:0 0 12px;color:var(--muted);font-size:11px;line-height:1.5}
+.token-field{display:grid;gap:6px;margin-bottom:10px}
+.token-field span{color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.token-field input{width:100%;min-height:42px;padding:10px 11px;border:1px solid #425d76;border-radius:11px;background:#050f1b;color:var(--text);font:inherit}
+.token-field input:focus{border-color:var(--cyan);outline:2px solid rgba(83,210,255,.18)}
+.close-actions{display:grid;gap:8px}
+.close-task-button,.token-save-button,.token-remove-button{width:100%;min-height:42px;padding:10px 12px;border-radius:11px;font-weight:900}
+.close-task-button{border:1px solid #ce5169;background:#7a2638;color:#fff}
+.close-task-button:hover,.close-task-button:focus-visible{border-color:#ff9cb0;background:#923148;outline:none}
+.close-task-button:disabled{cursor:wait;opacity:.68}
+.token-save-button{border:1px solid #4086a5;background:#123b51;color:#dff7ff}
+.token-save-button:hover,.token-save-button:focus-visible{border-color:var(--cyan);outline:none}
+.token-remove-button{border:1px solid #485d70;background:#0a1725;color:#c5d2df}
+.token-remove-button:hover,.token-remove-button:focus-visible{border-color:#8ca2b6;outline:none}
 .loading{display:grid;place-items:center;min-height:260px;color:var(--muted)}
 .spinner{width:30px;height:30px;border:3px solid #23435d;border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
