@@ -67,6 +67,7 @@ function renderTask(id){
           <div class="side-item"><small>Semanas ISO</small><strong>${weeks.length?weeks.join(", "):"Sin fecha"}</strong></div>
           ${isOverdue(task)?'<div class="side-item overdue-note"><small>Situación</small><strong>Vencida y arrastrada a la Week actual</strong></div>':""}
         </div>
+        ${closeTaskControls(task)}
       </aside>
     </section>`;
 }

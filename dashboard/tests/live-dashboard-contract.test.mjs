@@ -16,11 +16,11 @@ const cssBase = await readFile(new URL("../iso-week-base.css", import.meta.url),
 const cssViews = await readFile(new URL("../iso-week-views.css", import.meta.url), "utf8");
 const css = cssBase + "\n" + cssViews;
 
-test("consulta GitHub Issues en vivo sin snapshot ni credenciales", () => {
+test("consulta GitHub Issues en vivo sin snapshot ni credenciales embebidas", () => {
   assert.match(script, /api\.github\.com\/repos\/misaeln-pc1\/capacita-task-hub\/issues/);
   assert.match(script, /state=open&per_page=100/);
   assert.match(script, /cache:\s*"no-store"/);
-  assert.doesNotMatch(html + script, /snapshot\.js|__ATLAS_SNAPSHOT__|GITHUB_TOKEN|Authorization/);
+  assert.doesNotMatch(html + script, /snapshot\.js|__ATLAS_SNAPSHOT__|GITHUB_TOKEN|github_pat_[A-Za-z0-9_]+|ghp_[A-Za-z0-9]+/);
 });
 
 test("carga recursos locales del dashboard semanal", () => {
@@ -50,6 +50,27 @@ test("usa navegación interna y nunca envía una tarjeta a GitHub", () => {
   assert.match(views, /function renderTask\(id\)/);
   assert.match(views, /function renderWeek\(key\)/);
   assert.doesNotMatch(html + script, /Abrir issue en GitHub|html_url|target="_blank"/);
+});
+
+test("cierra únicamente la issue visualizada con un payload fijo", () => {
+  assert.match(detail + app, /Cerrar como completada/);
+  assert.match(app, /WRITE_TOKEN_STORAGE_KEY="atlas\.github\.issue\.write\.token\.v1"/);
+  assert.match(app, /localStorage\.setItem\(WRITE_TOKEN_STORAGE_KEY,token\)/);
+  assert.match(app, /route\[0\]!=="task"\|\|Number\(route\[1\]\)!==id/);
+  assert.match(app, /fetch\(`\$\{API_BASE\}\/\$\{id\}`/);
+  assert.match(app, /method:"PATCH"/);
+  assert.match(app, /state:"closed",state_reason:"completed"/);
+  assert.match(app, /Number\(result\.number\)!==id\|\|result\.state!=="closed"/);
+  assert.match(app, /routeTo\(""\);\s*await refresh\(\)/);
+  assert.doesNotMatch(app, /method:"(?:DELETE|PUT|POST)"/);
+  assert.doesNotMatch(app, /\/comments|\/labels|\/assignees|\/milestones/);
+});
+
+test("permite eliminar el token local sin exponerlo en la interfaz", () => {
+  assert.match(app, /localStorage\.removeItem\(WRITE_TOKEN_STORAGE_KEY\)/);
+  assert.match(detail + app, /Eliminar acceso de este dispositivo/);
+  assert.match(app, /type="password"/);
+  assert.doesNotMatch(detail + app, /console\.(?:log|info|debug)\([^)]*token/i);
 });
 
 test("muestra siempre la semana actual y las cuatro siguientes", () => {
@@ -163,4 +184,66 @@ test("interpreta formatos legacy y fechas específicas de hitos", () => {
   const preaudit = `## Fecha\n\n- **Fecha de preauditoría:** viernes 24 de julio de 2026`;
   assert.equal(milestoneDateFromBody(audit), "2026-08-11");
   assert.equal(milestoneDateFromBody(preaudit), "2026-07-24");
+});
+
+test("ejecuta PATCH sólo sobre el id de la ruta abierta y luego refresca", async () => {
+  const start = app.indexOf("const WRITE_TOKEN_STORAGE_KEY=");
+  const end = app.indexOf("async function refresh()");
+  assert.ok(start >= 0 && end > start);
+  const fragment = app.slice(start, end) + "\nglobalThis.__closeTest={closeVisibleIssue};";
+  const calls=[];
+  let routed=null;
+  let refreshed=0;
+  const banner={textContent:"",classList:{add(){},remove(){}}};
+  const context={
+    API_BASE:"https://api.github.com/repos/misaeln-pc1/capacita-task-hub/issues",
+    tasks:[{id:74}],
+    routeParts:()=>["task","74"],
+    localStorage:{getItem:()=>"token-local",setItem(){},removeItem(){}},
+    confirm:()=>true,
+    document:{querySelector:()=>null},
+    $:()=>banner,
+    fetch:async (url,options)=>{
+      calls.push({url,options});
+      return {ok:true,status:200,json:async()=>({number:74,state:"closed"})};
+    },
+    routeTo:(path)=>{routed=path},
+    refresh:async()=>{refreshed+=1},
+    console
+  };
+  vm.createContext(context);
+  vm.runInContext(fragment,context);
+  await context.__closeTest.closeVisibleIssue(74);
+  assert.equal(calls.length,1);
+  assert.equal(calls[0].url,"https://api.github.com/repos/misaeln-pc1/capacita-task-hub/issues/74");
+  assert.equal(calls[0].options.method,"PATCH");
+  assert.deepEqual(JSON.parse(calls[0].options.body),{state:"closed",state_reason:"completed"});
+  assert.equal(routed,"");
+  assert.equal(refreshed,1);
+});
+
+test("bloquea el cierre cuando el id solicitado no coincide con la ficha", async () => {
+  const start = app.indexOf("const WRITE_TOKEN_STORAGE_KEY=");
+  const end = app.indexOf("async function refresh()");
+  const fragment = app.slice(start, end) + "\nglobalThis.__closeTest={closeVisibleIssue};";
+  let fetches=0;
+  const banner={textContent:"",classList:{add(){},remove(){}}};
+  const context={
+    API_BASE:"https://api.github.com/repos/misaeln-pc1/capacita-task-hub/issues",
+    tasks:[{id:74}],
+    routeParts:()=>["task","74"],
+    localStorage:{getItem:()=>"token-local",setItem(){},removeItem(){}},
+    confirm:()=>true,
+    document:{querySelector:()=>null},
+    $:()=>banner,
+    fetch:async()=>{fetches+=1;return {ok:true,json:async()=>({})}},
+    routeTo(){},
+    refresh:async()=>{},
+    console
+  };
+  vm.createContext(context);
+  vm.runInContext(fragment,context);
+  await context.__closeTest.closeVisibleIssue(75);
+  assert.equal(fetches,0);
+  assert.match(banner.textContent,/no coincide con la ficha abierta/);
 });
