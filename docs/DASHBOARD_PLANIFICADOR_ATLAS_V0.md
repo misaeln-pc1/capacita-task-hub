@@ -1,169 +1,86 @@
-# Dashboard Visual Planificador Atlas V0
+# Dashboard Visual Planificador Atlas V0 — Histórico
 
-## Objetivo
+## Estado
 
-Crear una capa visual de lectura para el **Sistema de Tareas Atlas** sin sustituir GitHub Issues ni el GitHub Project **Planificador Atlas**.
+Esta arquitectura quedó **superada el 2026-07-14** por el Dashboard Planificador Atlas V1.
 
-La V0 permite revisar rápidamente:
-
-- tareas abiertas;
-- prioridades P1/P2;
-- riesgos;
-- bloqueos y vencimientos;
-- tareas sin fecha absoluta;
-- foco inmediato;
-- ruta crítica SOFOFA;
-- enlaces directos a los issues.
-
-## Ubicación
+Documentación vigente:
 
 ```text
-dashboard/index.html
+docs/DASHBOARD_PLANIFICADOR_ATLAS_V1.md
 ```
 
-## Fuente de verdad
+URL operativa:
 
 ```text
-GitHub Issues / capacita-task-hub
+https://misaeln-pc1.github.io/capacita-task-hub/dashboard/
 ```
 
-El dashboard es una **vista snapshot**, no una base de datos ni un gestor alternativo.
+## Qué fue la V0
 
-Regla vigente:
+La V0 fue una primera capa visual portable creada para validar diseño y utilidad antes de conectar el dashboard a GitHub Issues.
+
+Características históricas:
+
+- snapshot manual de issues abiertos;
+- HTML autocontenido;
+- indicadores, foco inmediato, filtros y enlaces a GitHub;
+- sin API GitHub en runtime;
+- actualización manual del arreglo de tareas;
+- ChatGPT Sites considerado como publicación posterior.
+
+## Por qué fue reemplazada
+
+El snapshot requería mantenimiento manual y podía quedar desactualizado. La V1 resolvió ese problema mediante:
+
+- lectura directa de la API pública de GitHub;
+- publicación en GitHub Pages;
+- actualización al abrir, manual y periódica;
+- navegación interna;
+- Weeks ISO;
+- hitos y carga semanal;
+- arrastre de tareas vencidas abiertas;
+- control de caché de CSS y JavaScript.
+
+## Fuente oficial
+
+La regla nunca cambió:
 
 ```text
-El problema vive en el repo.
-La tarea ejecutable vive en Task Hub.
-La evidencia técnica vive en el repo.
+GitHub Issues = fuente oficial
+Dashboard = capa de lectura
 ```
 
-## Fuente del snapshot V0
+## Valor histórico
 
-- Repositorio: `misaeln-pc1/capacita-task-hub`.
-- Consulta conceptual: issues abiertos.
-- Fecha del snapshot: 2026-07-11 05:14 America/Santiago.
-- Total incluido: 13 issues abiertos, incluido el issue de construcción del dashboard.
-- Datos incluidos: título, proyecto, tipo, prioridad, riesgo, responsable, estado, fecha visible, siguiente acción y URL.
+La V0 permitió validar:
 
-## Diseño V0
+- la utilidad de una capa visual;
+- la necesidad de separar hitos y tareas;
+- la importancia de fechas absolutas;
+- la necesidad de no duplicar gestión;
+- el requisito de mantener GitHub como fuente de verdad.
 
-### Indicadores
+## Estado de los componentes V0
 
-- Tareas abiertas.
-- Prioridad P1.
-- Bloqueadas o vencidas.
-- Sin fecha absoluta.
-- Hitos de riesgo rojo.
-
-### Componentes
-
-1. Hero ejecutivo.
-2. Foco inmediato de máximo tres tareas.
-3. Timeline de la ruta crítica SOFOFA.
-4. Filtros por texto, prioridad, riesgo, estado y proyecto.
-5. Lista de tareas con enlace directo a GitHub.
-6. Panel de brechas de planificación.
-7. Fuente, fecha de snapshot y limitaciones visibles.
-
-## Arquitectura técnica
-
-- HTML, CSS y JavaScript nativos.
-- Un solo archivo portable.
-- Sin librerías externas.
-- Sin fuentes externas.
-- Sin API GitHub en runtime.
-- Sin almacenamiento local.
-- Sin formularios ni escritura.
-- Sin credenciales.
-- Los únicos accesos de red ocurren cuando el usuario pulsa un enlace explícito a GitHub.
-
-## Decisiones
-
-### Snapshot antes que integración
-
-La V0 usa un snapshot embebido para validar utilidad, diseño y criterio de priorización antes de crear sincronización.
-
-Motivo:
-
-- evita credenciales y scopes;
-- evita GitHub Actions o APIs prematuras;
-- facilita importar o reconstruir posteriormente en Sites;
-- mantiene un fallback portable en GitHub.
-
-### Sites como fase posterior
-
-ChatGPT Sites queda como capacidad candidata/piloto para publicar la vista después de revisar la V0.
-
-La publicación será una fase separada porque una URL desplegada debe tratarse como producción y requiere revisar acceso, datos y actualización del snapshot.
-
-### Work no es la superficie principal
-
-Work puede ayudar a crear o mantener el entregable, pero no es la fuente de verdad ni el alojamiento operativo. GitHub conserva código, versión, diff, rollback y PR.
-
-## Ruta crítica SOFOFA incluida
-
-Las fechas internas son una propuesta de trabajo y no reemplazan el hito oficial:
-
-| Fecha | Entregable |
+| Componente | Estado |
 |---|---|
-| 2026-07-12 | Cursos definitivos y Go/No-Go. |
-| 2026-07-14 | PF, metodología y requisitos técnicos. |
-| 2026-07-16 | Costos, utilidad y anexos económicos. |
-| 2026-07-17 | Documentos administrativos completos. |
-| 2026-07-20 | Correcciones cerradas y versión congelada. |
-| 2026-07-21 | Validación humana, firma y prueba de carga. |
-| 2026-07-22 10:00 | Objetivo interno de envío. |
-| 2026-07-22 14:00 | Límite oficial SOFOFA. |
+| Snapshot embebido | Retirado como arquitectura vigente |
+| Actualización manual | Reemplazada por API pública |
+| ChatGPT Sites | Descartado para esta solución |
+| Enlaces directos a GitHub | Reemplazados por detalle interno |
+| Hero, foco y filtros | Reemplazados por cronología semanal |
+| HTML/CSS/JS nativos | Conservados y modularizados |
+| Solo lectura | Conservado |
 
-## Actualización del snapshot
+## Evidencia de transición
 
-En V0 la actualización es manual y controlada:
+- PR #41 conectó el dashboard a GitHub Issues.
+- PR #42 habilitó la entrada de GitHub Pages.
+- PR #43 restauró el detalle interno.
+- PR #45–#47 implementaron semanas ISO y parser.
+- PR #58 fijó cinco Weeks y compactó la portada.
+- PR #60 implementó vencidas.
+- PR #61 controló la caché.
 
-1. revisar issues abiertos;
-2. actualizar el arreglo `TASKS` dentro de `dashboard/index.html`;
-3. actualizar fecha y conteos del snapshot;
-4. validar que tarjetas, filtros y lista reconcilien;
-5. revisar diff y publicar mediante PR.
-
-No se crea script de actualización en esta fase.
-
-## Validación mínima
-
-- HTML parseable.
-- JavaScript validado sintácticamente con `node --check` sobre el bloque embebido.
-- 13 tareas en el snapshot.
-- 7 tareas P1.
-- 2 tareas bloqueadas o vencidas.
-- 11 tareas sin fecha absoluta.
-- 1 hito rojo.
-- Sin dependencias o solicitudes de red automáticas.
-- Diseño responsive mediante CSS.
-
-## Riesgos
-
-| Riesgo | Semáforo | Mitigación |
-|---|---|---|
-| Snapshot desactualizado | Amarillo | Mostrar fecha de corte y GitHub como fuente oficial. |
-| Duplicar gestión | Amarillo | Dashboard solo lectura; cambios se hacen en issues. |
-| Fechas internas confundidas con plazos oficiales | Amarillo | Etiquetarlas como propuestas internas. |
-| Publicar información privada | Amarillo/Rojo | Revisar contenido y acceso antes de Sites. |
-| Integración prematura | Amarillo | No usar API, Actions ni credenciales en V0. |
-
-## Rollback
-
-El dashboard no altera tareas ni configuración. Para revertir:
-
-- no mergear el PR; o
-- retirar `dashboard/index.html` y esta documentación mediante PR posterior autorizado.
-
-## Definition of Done V0
-
-- [x] HTML portable creado.
-- [x] Datos snapshot identificados y fechados.
-- [x] Indicadores reconciliados.
-- [x] Filtros y enlaces implementados.
-- [x] Ruta crítica SOFOFA visible.
-- [x] Sin API, credenciales, workflows o producción.
-- [ ] Revisión humana del PR.
-- [ ] Merge autorizado por Misael.
-- [ ] Publicación posterior en Sites como piloto separado.
+Este archivo se conserva únicamente para trazabilidad histórica. No debe usarse para definir la arquitectura vigente.
