@@ -1,0 +1,20 @@
+# Atlas Mail Ops: secretos y datos privados
+.env
+.env.*
+!.env.example
+private-data/
+atlas-mail-private/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+latest_review_private.json
+latest_search_private.json
+latest_summary_sanitized.json
+
+# Python local
+__pycache__/
+*.pyc
+.venv/

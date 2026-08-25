@@ -1,0 +1,85 @@
+{
+  "version": "atlas-mail-v1-2026-07-19",
+  "urgent_terms": [
+    "urgente",
+    "hoy",
+    "inmediato",
+    "acción requerida",
+    "respuesta requerida",
+    "vence",
+    "vencimiento",
+    "último día",
+    "bloqueo"
+  ],
+  "financial_terms": [
+    "factura",
+    "pago",
+    "cobranza",
+    "transferencia",
+    "banco",
+    "orden de compra",
+    "cotización",
+    "presupuesto",
+    "proveedor"
+  ],
+  "compliance_terms": [
+    "sence",
+    "auditoría",
+    "nch 2728",
+    "otic",
+    "licitación",
+    "mercado público",
+    "compra ágil",
+    "sofofa",
+    "cchc"
+  ],
+  "operations_terms": [
+    "curso",
+    "alumno",
+    "participante",
+    "moodle",
+    "acceso",
+    "bienvenida",
+    "coordinación",
+    "reunión",
+    "confirmar fecha",
+    "clase",
+    "inicio"
+  ],
+  "task_terms": [
+    "por favor",
+    "necesito",
+    "solicito",
+    "favor enviar",
+    "favor confirmar",
+    "pendiente",
+    "recordatorio",
+    "confirmar",
+    "enviar",
+    "revisar",
+    "pagar",
+    "comprar",
+    "coordinar",
+    "agendar",
+    "completar"
+  ],
+  "automated_sender_terms": [
+    "no-reply",
+    "noreply",
+    "do-not-reply",
+    "notification",
+    "mailer-daemon",
+    "marketing",
+    "newsletter"
+  ],
+  "automated_content_terms": [
+    "unsubscribe",
+    "darse de baja",
+    "cancelar suscripción",
+    "correo automático",
+    "mensaje automático"
+  ],
+  "excluded_folder_names": [
+    "R1-RELATORES"
+  ]
+}
