@@ -1,55 +1,71 @@
 # Capacita Task Hub
 
-Repositorio privado para tareas personales, administrativas, transversales e inbox operativo del **Sistema de Tareas Atlas**.
+Repositorio público de tareas ejecutables, personales, administrativas y seguimientos accionables del **Sistema de Tareas Atlas**.
 
 ## Nombres oficiales
 
 | Elemento | Nombre | Qué es |
 |---|---|---|
-| Repo | `capacita-task-hub` | Lugar donde viven tareas personales, administrativas, transversales o sin repo dueño claro. |
-| GitHub Project | **Planificador Atlas** | Panel central donde se ven tareas de este repo y de los repos operativos. |
-| Sistema completo | **Sistema de Tareas Atlas** | Reglas, campos, capas, flujos y criterios de uso. |
-| Protocolo principal | `PROTOCOLO_TAREAS_ATLAS.md` | Regla oficial para decidir dónde crear, clasificar y gestionar tareas. |
+| Repo | `capacita-task-hub` | Cola maestra de tareas ejecutables. |
+| GitHub Project | **Planificador Atlas** | Panel central de organización visual. |
+| Dashboard | **Planificador Atlas V1** | Vista cronológica de solo lectura publicada en GitHub Pages. |
+| Sistema completo | **Sistema de Tareas Atlas** | Reglas, repos, panel y flujos. |
+| Protocolo principal | `PROTOCOLO_TAREAS_ATLAS.md` | Regla oficial para ubicar y gestionar tareas. |
 
 ## Regla principal
 
-> La tarea vive en el repo dueño. El **Planificador Atlas** la organiza y la muestra.
+```text
+El problema vive en el repo operativo.
+La tarea ejecutable vive en Task Hub.
+La evidencia técnica vive en el repo dueño.
+```
 
-- Si la tarea tiene repo dueño, se crea como issue en ese repo operativo y se agrega al **Planificador Atlas**.
-- Si la tarea es personal, administrativa, transversal o no tiene repo dueño claro, se crea como issue en `capacita-task-hub` y se agrega al **Planificador Atlas**.
-- Crear una tarea no implica crear rama, PR ni merge.
-- Rama/PR aplica solo cuando se modifica documentación oficial, código, estructura, decisión relevante o criterio operativo.
+- Ideas, investigaciones, decisiones, riesgos, bloqueos, épicas e incidentes viven en el repo operativo.
+- Tareas ejecutables, personales, administrativas y seguimientos accionables viven en `capacita-task-hub`.
+- Crear una tarea no requiere rama ni PR.
+- Rama/PR se usa cuando cambia código, documentación oficial, estructura, decisiones o criterios.
+
+## Dashboard operativo
+
+URL:
+
+```text
+https://misaeln-pc1.github.io/capacita-task-hub/dashboard/
+```
+
+Características vigentes:
+
+- consulta issues abiertos directamente desde la API pública de GitHub;
+- sin token, secreto, Worker, backend o snapshot;
+- semanas ISO 8601, lunes a domingo;
+- cinco Weeks visibles: actual y cuatro siguientes;
+- bloque de hitos y bloque de carga de tareas;
+- Weeks vacías visibles;
+- navegación interna Week → tarea → detalle;
+- tareas sin fecha separadas;
+- tareas abiertas vencidas arrastradas a la Week actual y marcadas en rojo;
+- actualización al abrir, manual y cada cinco minutos;
+- solo lectura.
+
+Documentación completa:
+
+```text
+docs/DASHBOARD_PLANIFICADOR_ATLAS_V1.md
+```
+
+La documentación V0 se conserva únicamente como historial de la etapa snapshot inicial.
+
+## Fuente oficial y privacidad
+
+GitHub Issues es la fuente oficial del estado operativo. El Project y el dashboard son capas visuales.
+
+El repo y sus issues son públicos. No registrar credenciales, secretos, tokens ni datos personales críticos.
 
 ## Capas del Planificador Atlas
 
-1. **Capa 1 — Visibilidad:** qué está pendiente, prioridad, riesgo, responsable, bloqueo y siguiente acción.
-2. **Capa 2 — Tiempo:** tamaño estimado, tiempo activo Misael, tiempo IA/agente, confianza e incertidumbre.
-3. **Capa 3 — Automatización:** qué puede hacer Atlas, Codex, Copilot, Jules, API o scripts, y qué requiere validación humana.
-
-## Dashboard visual V0
-
-La primera capa visual portable vive en:
-
-```text
-dashboard/index.html
-```
-
-Características:
-
-- snapshot fechado de issues abiertos;
-- indicadores de prioridad, riesgo, bloqueo y fechas;
-- foco inmediato;
-- timeline de hitos;
-- filtros y enlaces directos a GitHub;
-- HTML autocontenido, sin API, credenciales ni dependencias externas.
-
-Arquitectura, fuente y handoff futuro a Sites:
-
-```text
-docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md
-```
-
-GitHub Issues y el Project **Planificador Atlas** siguen siendo la fuente oficial. El dashboard es una capa de lectura y no modifica tareas.
+1. **Visibilidad:** pendientes, prioridad, riesgo, responsable, bloqueo y siguiente acción.
+2. **Tiempo:** estimación, tiempo real, confianza y desviación.
+3. **Automatización:** delegación controlada, validación humana y fallback.
 
 ## Documentos clave
 
@@ -57,18 +73,21 @@ GitHub Issues y el Project **Planificador Atlas** siguen siendo la fuente oficia
 |---|---|
 | `PROTOCOLO_TAREAS_ATLAS.md` | Reglas operativas principales. |
 | `PROJECT_CONTEXT.md` | Contexto estable del sistema. |
-| `docs/CAPAS_PLANIFICADOR_ATLAS.md` | Detalle de capa 1, 2 y 3. |
-| `docs/CAMPOS_PLANIFICADOR_ATLAS.md` | Campos sugeridos del GitHub Project. |
-| `docs/FLUJO_TAREAS_REPOS_OPERATIVOS.md` | Cómo nacen tareas desde Moodle, Edge, Zoho, licitaciones, etc. |
-| `docs/CRITERIOS_TIEMPO_AUTOMATIZACION.md` | Escalas de esfuerzo, incertidumbre y automatización. |
-| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md` | Diseño, fuente, límites y publicación posterior del dashboard. |
-| `DECISIONES.md` | Decisiones base del sistema. |
-| `RIESGOS.md` | Riesgos y controles. |
-| `PROMPTS_BASE.md` | Frases y prompts operativos reutilizables. |
+| `TASK_STATUS.md` | Estado vigente y pendientes. |
+| `DECISIONES.md` | Decisiones oficiales. |
+| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V1.md` | Arquitectura y operación del dashboard vivo. |
+| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md` | Historial de la etapa snapshot. |
+| `docs/CAMPOS_PLANIFICADOR_ATLAS.md` | Campos sugeridos del Project. |
+| `docs/FLUJO_TAREAS_REPOS_OPERATIVOS.md` | Enrutamiento padre/hija. |
+| `docs/CRITERIOS_TIEMPO_AUTOMATIZACION.md` | Esfuerzo y automatización. |
+| `RIESGOS.md` | Riesgos y mitigaciones. |
+| `PROMPTS_BASE.md` | Prompts operativos. |
 
 ## Estado actual
 
-- Sistema documental y workflow Auto-add operativos.
-- Tareas reales cargadas en `capacita-task-hub`.
-- Dashboard visual V0 en desarrollo mediante issue #23 y rama separada.
-- Publicación en Sites pendiente de revisión y merge de la V0.
+- Sistema de Tareas Atlas operativo.
+- GitHub Issues como fuente oficial.
+- Planificador Atlas V1 publicado y validado visualmente el 2026-07-14.
+- Issues de implementación #44 y #59 cerradas.
+- Issues de prueba #48–#57 cerradas después de la validación.
+- Futuras mejoras deben abrir issue y realizarse mediante rama/PR.

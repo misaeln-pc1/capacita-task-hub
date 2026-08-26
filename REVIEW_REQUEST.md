@@ -2,78 +2,73 @@
 
 ## Alcance
 
-Revisión del Dashboard Visual V0 del **Planificador Atlas**, asociado al issue `capacita-task-hub#23`.
+Revisión documental de cierre del **Planificador Atlas V1**, asociada a la issue `capacita-task-hub#62`.
+
+La implementación funcional ya fue aprobada visualmente por Misael. Este cambio no modifica la lógica del dashboard.
 
 ## Objetivo
 
-Validar que la nueva capa visual:
+Confirmar que la documentación oficial:
 
-- mejora la lectura de prioridades, fechas, riesgos y bloqueos;
-- mantiene GitHub Issues como fuente oficial;
-- no crea una segunda base de tareas;
-- puede convertirse posteriormente en un piloto de ChatGPT Sites;
-- no introduce API, credenciales, workflows, scripts ni producción.
+- describe la arquitectura viva basada en GitHub Issues;
+- elimina referencias vigentes al snapshot y a ChatGPT Sites;
+- registra la URL operativa de GitHub Pages;
+- documenta Weeks ISO, hitos, carga, tareas sin fecha y vencidas;
+- conserva GitHub Issues como fuente oficial;
+- registra el cierre de pruebas e incidencias.
 
 ## Rama
 
 ```text
-feature/task-hub-visual-dashboard-v0
+docs/dashboard-live-v1-closure
 ```
 
-## Archivos principales
+## Archivos de revisión
 
 | Archivo | Revisión esperada |
 |---|---|
-| `dashboard/index.html` | Diseño visual, accesibilidad básica, filtros, enlaces, datos y ausencia de dependencias externas. |
-| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md` | Fuente, arquitectura, riesgos, rollback y handoff a Sites. |
-| `README.md` | Entrada al dashboard y aclaración de fuente oficial. |
-| `REPO_MAP.md` | Registro de nuevas rutas. |
-| `TASK_STATUS.md` | Estado, pendientes y límites. |
-| `DECISIONES.md` | Decisión de snapshot GitHub primero y Sites después. |
-| `CHANGELOG_AGENT.md` | Evidencia de lectura, cambios y validación. |
+| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V1.md` | Arquitectura, reglas y operación diaria. |
+| `README.md` | Entrada vigente, URL y privacidad. |
+| `TASK_STATUS.md` | Estado operativo y ausencia de pendientes de implementación. |
+| `REPO_MAP.md` | Mapa de módulos y pruebas. |
+| `DECISIONES.md` | Decisiones vigentes del dashboard V1. |
+| `CHANGELOG_AGENT.md` | Registro de cierre. |
+| `docs/DASHBOARD_PLANIFICADOR_ATLAS_V0.md` | Marcado como documento histórico superado. |
 
-## Datos snapshot esperados
+## Evidencia funcional ya validada
 
-- Issues abiertos incluidos: 13.
-- Prioridad P1: 7.
-- Bloqueadas o vencidas: 2.
-- Sin fecha absoluta: 11.
-- Riesgo rojo: 1.
-- Hito oficial SOFOFA: 22/07/2026 14:00 America/Santiago.
+- PR #41: consulta en vivo.
+- PR #42: GitHub Pages.
+- PR #43: detalle interno.
+- PR #45–#47: Weeks ISO y parser.
+- PR #58: cinco Weeks y compactación.
+- PR #60: arrastre de vencidas.
+- PR #61: control de caché.
+- Issue #44: cerrada.
+- Issue #59: cerrada después de aprobación visual.
+- Issues #48–#57: pruebas cerradas.
+- Merge funcional final: `95ea416f57489e32d1c675c6c65c9c90c2092277`.
 
-## Preguntas de revisión
+## No se modifica
 
-1. ¿El dashboard permite entender el foco sin leer una tabla extensa?
-2. ¿Queda inequívoco que GitHub es la fuente de verdad?
-3. ¿Las fechas internas SOFOFA están claramente separadas del plazo oficial?
-4. ¿Los conteos visibles reconcilian con el arreglo `TASKS`?
-5. ¿Los filtros funcionan sin dependencia externa?
-6. ¿Existe riesgo de exponer información privada al publicar posteriormente en Sites?
-7. ¿La V0 aporta suficiente valor para justificar un piloto de publicación?
-
-## Validación realizada
-
-- HTML parseado correctamente.
-- JavaScript embebido validado con `node --check`.
-- Conteos reconciliados contra 13 objetos del snapshot.
-- Sin librerías, fuentes o recursos externos.
-- Sin API GitHub en runtime.
-- Sin credenciales, formularios, almacenamiento o escritura.
-- Prueba de screenshot headless intentada, pero Chromium del entorno quedó bloqueado por restricciones del contenedor; no se usa como evidencia de aprobación visual.
+- código del dashboard;
+- GitHub Pages;
+- issues operativas reales;
+- credenciales o secretos;
+- Actions, workflows o integraciones;
+- Projects v2.
 
 ## Riesgo
 
-**Amarillo bajo**:
+**Verde:** actualización documental reversible.
 
-- el dashboard puede quedar desactualizado;
-- una publicación Sites sería una URL desplegada y requiere revisión separada;
-- las clasificaciones inferidas deben corregirse en GitHub si no representan el estado real.
+## Definition of Done
 
-## Definition of Done de revisión
-
-- [ ] Revisión visual humana.
-- [ ] Revisión de conteos y clasificaciones.
-- [ ] Confirmación de que el snapshot es aceptable como V0.
-- [ ] Aprobación o solicitud de cambios.
-- [ ] Merge únicamente por Misael.
-- [ ] Después del merge, piloto Sites en tarea separada.
+- [x] Documentación V1 creada.
+- [x] README actualizado.
+- [x] TASK_STATUS actualizado.
+- [x] REPO_MAP actualizado.
+- [x] Revisión funcional humana ya aprobada.
+- [ ] Revisión del diff documental.
+- [ ] Merge por Misael.
+- [ ] Issue #62 cerrada después del merge.
